@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0e16">
+<title>NeverCut Studio — Pro Video Editor</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#0a0e16; --bg2:#0e1420; --card:#131b2a; --card2:#182233;
+  --line:#243146; --txt:#e7eefc; --mut:#8ea3c2;
+  --acc:#22d3ee; --acc2:#8b5cf6; --gold:#f5b942; --ok:#34d399; --bad:#f87171;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:-apple-system,'Segoe UI',Roboto,sans-serif;}
+body{padding-bottom:76px;}
+h2{font-size:.95rem;margin:0 0 10px;display:flex;align-items:center;gap:8px;}
+h2 .dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));}
+a{color:var(--acc);}
+button{font-family:inherit;}
+input,select,textarea{font-family:inherit;background:var(--bg2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px 12px;font-size:.95rem;width:100%;}
+input[type=range]{padding:0;height:34px;accent-color:var(--acc);background:transparent;border:none;}
+input[type=color]{padding:2px;height:42px;}
+.topbar{position:sticky;top:0;z-index:30;background:rgba(10,14,22,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+.logo{font-weight:800;font-size:1.05rem;letter-spacing:.3px;}
+.logo .g{background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.logo small{display:block;font-size:.6rem;color:var(--mut);font-weight:500;letter-spacing:2px;}
+.btn{border:none;border-radius:12px;padding:10px 14px;font-size:.9rem;font-weight:700;cursor:pointer;background:var(--card2);color:var(--txt);border:1px solid var(--line);}
+.btn:active{transform:scale(.97);}
+.btn.pri{background:linear-gradient(135deg,#0ea5c9,#7c5cf0);border:none;color:#fff;}
+.btn.gold{background:linear-gradient(135deg,#f5b942,#e88a1d);border:none;color:#231803;}
+.btn.bad{background:#3a1d24;color:#ffb4b4;border:1px solid:#5c2a34;}
+.btn.sm{padding:7px 10px;font-size:.8rem;border-radius:9px;}
+.btn[disabled]{opacity:.45;pointer-events:none;}
+.wrap{max-width:680px;margin:0 auto;padding:12px;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;}
+.mut{color:var(--mut);font-size:.8rem;}
+.row{display:flex;gap:8px;align-items:center;}
+.row.wrap{flex-wrap:wrap;}
+.grow{flex:1;}
+/* stage */
+.stagebox{background:#000;border-radius:14px;overflow:hidden;border:1px solid var(--line);position:relative;}
+#stage{width:100%;display:block;touch-action:none;background:#000;}
+.pill{background:rgba(0,0,0,.55);color:#cbd5e1;border-radius:999px;padding:3px 9px;font-size:.7rem;font-weight:700;}
+#hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;color:#5b6b85;font-size:.8rem;text-align:center;padding:20px;}
+.transport{display:flex;gap:8px;align-items:center;padding:10px 2px 2px;}
+#btnPlay{width:46px;height:46px;border-radius:50%;font-size:1rem;flex:none;}
+.tl{font-size:.75rem;color:var(--mut);font-variant-numeric:tabular-nums;flex:none;}
+/* tabs */
+.tabs{position:fixed;bottom:0;left:0;right:0;z-index:40;background:rgba(10,14,22,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom));}
+.tab{background:none;border:none;color:var(--mut);font-size:.68rem;font-weight:700;display:flex;flex-direction:column;gap:3px;align-items:center;padding:4px 12px;border-radius:12px;cursor:pointer;}
+.tab .ic{font-size:1.25rem;}
+.tab.on{color:var(--acc);background:#0f2733;}
+.panel{display:none;}
+.panel.on{display:block;}
+/* media grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+.mcard{background:var(--bg2);border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+.mcard img{width:100%;height:86px;object-fit:cover;display:block;background:#000;}
+.mmeta{padding:8px;}
+.mname{font-size:.72rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mbtns{display:flex;gap:5px;margin-top:7px;}
+.mbtns .btn{flex:1;padding:6px 2px;font-size:.7rem;}
+/* clips */
+.clip{background:var(--bg2);border:1px solid var(--line);border-radius:13px;padding:10px;margin-bottom:10px;}
+.clip .hd{display:flex;gap:8px;align-items:center;}
+.clip .hd img{width:64px;height:40px;object-fit:cover;border-radius:7px;background:#000;}
+.clip .nm{font-size:.78rem;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fld{display:grid;grid-template-columns:74px 1fr;gap:6px 8px;align-items:center;margin-top:8px;font-size:.78rem;color:var(--mut);}
+.fld input[type=number]{padding:7px 8px;font-size:.85rem;}
+.fld select{padding:7px 8px;font-size:.85rem;}
+.tagrow{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.empty{text-align:center;color:var(--mut);font-size:.82rem;padding:18px 8px;border:1px dashed var(--line);border-radius:12px;}
+/* text layers */
+.tx{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;}
+/* export */
+.prog{height:14px;background:var(--bg2);border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-top:10px;}
+.prog>div{height:100%;width:0%;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .3s;}
+#result{display:none;}
+#result video{width:100%;border-radius:12px;background:#000;margin-top:10px;}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#0f172a;border:1px solid var(--line);color:var(--txt);padding:10px 18px;border-radius:999px;font-size:.85rem;z-index:99;opacity:0;transition:opacity .3s;pointer-events:none;max-width:86vw;text-align:center;}
+.toast.on{opacity:1;}
+.badge{display:inline-block;background:#0f2733;color:var(--acc);border-radius:999px;padding:2px 9px;font-size:.66rem;font-weight:800;letter-spacing:.5px;}
+hr.sep{border:none;border-top:1px solid var(--line);margin:12px 0;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">NeverCut <span class="g">Studio</span><small>PRO VIDEO EDITOR</small></div>
+  <button class="btn sm" id="btnInstall" style="display:none">⬇ Install App</button>
+</div>
+
+<div class="wrap">
+
+  <!-- STAGE -->
+  <div class="card">
+    <div class="stagebox">
+      <canvas id="stage" width="1280" height="720"></canvas>
+      <div id="hint">Import videos or photos below, add them to the timeline, and they play right here.</div>
+      <div style="position:absolute;top:8px;left:8px" class="pill" id="resBadge">1280×720</div>
+    </div>
+    <div class="transport">
+      <button class="btn pri" id="btnPlay">▶</button>
+      <input type="range" id="seek" min="0" max="1000" value="0" style="flex:1">
+      <div class="tl"><span id="tcur">0:00</span> / <span id="ttot">0:00</span></div>
+    </div>
+    <div class="mut" id="pipHint" style="margin-top:8px;display:none">Tip: drag on the preview to move the top video. Drag its corner handle to resize it.</div>
+  </div>
+
+  <!-- MEDIA -->
+  <div class="panel on" id="p-media">
+    <div class="card">
+      <h2><span class="dot"></span>MEDIA LIBRARY</h2>
+      <div class="row" style="margin-bottom:10px">
+        <button class="btn pri grow" id="btnPick">📁 Import from Phone</button>
+      </div>
+      <input type="file" id="fileIn" accept="video/*,image/*" multiple style="display:none">
+      <div class="row" style="margin-bottom:10px">
+        <input type="url" id="urlIn" placeholder="…or paste a video / photo link">
+        <button class="btn" id="btnUrl">Add</button>
+      </div>
+      <div id="bin" class="grid"></div>
+      <div id="binEmpty" class="empty">No media yet. Import from your phone or paste a link.</div>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="panel" id="p-clip">
+    <div class="card">
+      <h2><span class="dot"></span>TIMELINE — MERGE YOUR CLIPS <span class="badge" id="totBadge">0:00</span></h2>
+      <div id="clips"></div>
+      <div id="clipsEmpty" class="empty">The timeline is empty. In the Media tab, tap <b>+ Clip</b> on a video or photo to add it here. Clips play one after another and export as ONE video.</div>
+    </div>
+  </div>
+
+  <!-- LAYERS -->
+  <div class="panel" id="p-layer">
+    <div class="card">
+      <h2><span class="dot"></span>REACTION LAYOUT — PICTURE BELOW, VIDEO ON TOP</h2>
+      <div id="baseNone" class="empty">Pick a background below from your media (a picture or video). Your timeline clips will float on top of it, exactly how content creators do reaction videos.</div>
+      <div id="baseRow" style="display:none" class="row" style="margin-bottom:8px">
+        <img id="baseThumb" style="width:70px;height:44px;object-fit:cover;border-radius:8px">
+        <div class="grow"><div class="mname" id="baseName"></div><div class="mut" id="baseKind"></div></div>
+        <button class="btn sm bad" id="btnBaseClear">✕</button>
+      </div>
+      <div class="fld">
+        <label>Size</label><input type="range" id="pipW" min="10" max="100" value="44">
+        <label>Position X</label><input type="range" id="pipX" min="0" max="100" value="50">
+        <label>Position Y</label><input type="range" id="pipY" min="0" max="100" value="50">
+      </div>
+      <div class="tagrow">
+        <button class="btn sm" data-preset="tl">↖ Top left</button>
+        <button class="btn sm" data-preset="tr">↗ Top right</button>
+        <button class="btn sm" data-preset="bl">↙ Bottom left</button>
+        <button class="btn sm" data-preset="br">↘ Bottom right</button>
+        <button class="btn sm" data-preset="c">▣ Center</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEXT -->
+  <div class="panel" id="p-text">
+    <div class="card">
+      <h2><span class="dot"></span>TEXT ON VIDEO</h2>
+      <button class="btn pri" id="btnAddText" style="width:100%">＋ Add Text Layer</button>
+      <div id="texts"></div>
+      <div id="textsEmpty" class="empty">No text layers. Add titles, captions, names, anything.</div>
+    </div>
+  </div>
+
+  <!-- EXPORT -->
+  <div class="panel" id="p-export">
+    <div class="card">
+      <h2><span class="dot"></span>EXPORT — SAVE THE FINAL VIDEO</h2>
+      <div class="fld">
+        <label>Format</label>
+        <select id="resSel">
+          <option value="1280x720" selected>Wide 720p (YouTube)</option>
+          <option value="1920x1080">Wide 1080p HD</option>
+          <option value="720x1280">Vertical (TikTok / Reels / Status)</option>
+          <option value="1080x1080">Square (Instagram)</option>
+        </select>
+        <label>Quality</label>
+        <select id="qualSel">
+          <option value="6000000" selected>Standard</option>
+          <option value="12000000">High</option>
+        </select>
+      </div>
+      <hr class="sep">
+      <h2><span class="dot"></span>BACKGROUND MUSIC</h2>
+      <div class="row">
+        <button class="btn grow" id="btnMusic">🎵 Choose Audio File</button>
+        <button class="btn sm bad" id="btnMusicClear" style="display:none">✕</button>
+      </div>
+      <input type="file" id="musicIn" accept="audio/*" style="display:none">
+      <div class="mut" id="musicName" style="margin-top:6px">No music added.</div>
+      <div class="fld" id="musicVolRow" style="display:none">
+        <label>Music vol</label><input type="range" id="musicVol" min="0" max="100" value="60">
+      </div>
+      <hr class="sep">
+      <button class="btn gold" id="btnExport" style="width:100%;font-size:1rem;padding:14px">🎬 EXPORT VIDEO</button>
+      <div class="prog"><div id="prog"></div></div>
+      <div class="mut" id="progTxt" style="margin-top:6px">The export records the movie in real time. Keep this screen open until it finishes.</div>
+      <div id="result">
+        <hr class="sep">
+        <h2><span class="dot"></span>DONE ✅</h2>
+        <video id="resultVid" controls playsinline></video>
+        <div class="mut" id="resultMeta" style="margin:8px 0"></div>
+        <a class="btn pri" id="btnSave" style="display:block;text-align:center;text-decoration:none">⬇ SAVE TO PHONE</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<nav class="tabs">
+  <button class="tab on" data-p="media"><span class="ic">📁</span>Media</button>
+  <button class="tab" data-p="clip"><span class="ic">🎞️</span>Timeline</button>
+  <button class="tab" data-p="layer"><span class="ic">🖼️</span>Layers</button>
+  <button class="tab" data-p="text"><span class="ic">🔤</span>Text</button>
+  <button class="tab" data-p="export"><span class="ic">🎬</span>Export</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=t=>{t=Math.max(0,t);const m=Math.floor(t/60),s=Math.floor(t%60);return m+':'+String(s).padStart(2,'0');};
+
+let SEQ=0;
+const MEDIA=[], CLIPS=[], TEXTS=[];
+const AUDIO_CTXS=[]; const AUDIO_NODES=new WeakMap();
+let BASE=null;
+const PIP={x:50,y:50,w:44};
+let MUSIC=null, MUSIC_GAIN=null;
+let DUR=0, RES={w:1280,h:720}, VBIT=6000000;
+let playing=false, pT=0, pT0=0, EXPORTING=false;
+let curIdx=-1;
+
+const stage=$('#stage'); const stageCtx=stage.getContext('2d');
+const exportCanvas=document.createElement('canvas'); const exportCtx=exportCanvas.getContext('2d');
+
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('on'),2600);}
+const mById=id=>MEDIA.find(m=>m.id===id);
+
+/* ================= MEDIA ================= */
+function addMedia(file){
+  const id='m'+(++SEQ);
+  const url=URL.createObjectURL(file);
+  const isVid=(file.type||'').startsWith('video')||/\.(mp4|webm|mov|mkv|m4v)$/i.test(file.name);
+  const m={id,name:file.name||('Media '+SEQ),type:isVid?'video':'image',url,duration:isVid?0:4,thumb:null};
+  if(isVid){
+    const el=document.createElement('video');
+    el.src=url; el.playsInline=true; el.preload='auto'; el.muted=true; el.crossOrigin='anonymous';
+    el.addEventListener('loadedmetadata',()=>{m.duration=el.duration||4; makeThumb(m); renderBin(); renderClips(); updateDUR();});
+    el.addEventListener('seeked',()=>{makeThumb(m);renderBin();});
+    m.el=el;
+  }else{
+    const im=new Image(); im.src=url;
+    im.onload=()=>{m.img=im; makeThumb(m); renderBin();};
+    m.img=im;
+  }
+  MEDIA.push(m); renderBin(); return m;
+}
+function makeThumb(m){
+  try{
+    const c=document.createElement('canvas'); c.width=160; c.height=100;
+    const x=c.getContext('2d'); x.fillStyle='#000'; x.fillRect(0,0,160,100);
+    const src=m.type==='video'?m.el:m.img;
+    if(!src)return;
+    const mw=m.type==='video'?m.el.videoWidth:m.img.naturalWidth, mh=m.type==='video'?m.el.videoHeight:m.img.naturalHeight;
+    if(!mw||!mh)return;
+    const k=Math.max(160/mw,100/mh), dw=mw*k, dh=mh*k;
+    x.drawImage(src,(160-dw)/2,(100-dh)/2,dw,dh);
+    m.thumb=c.toDataURL('image/jpeg',.7);
+  }catch(e){}
+}
+$('#btnPick').onclick=()=>$('#fileIn').click();
+$('#fileIn').onchange=e=>{const fs=[...e.target.files];fs.forEach(addMedia);e.target.value='';toast(fs.length+' file(s) imported');};
+$('#btnUrl').onclick=async()=>{
+  const u=$('#urlIn').value.trim(); if(!u)return toast('Paste a link first');
+  toast('Downloading…');
+  try{
+    const r=await fetch(u); if(!r.ok)throw new Error('HTTP '+r.status);
+    const b=await r.blob();
+    const nm=u.split('/').pop().split('?')[0]||'download';
+    addMedia(new File([b],nm,{type:b.type||(b.type.startsWith('video')?b.type:'video/mp4')}));
+    $('#urlIn').value=''; toast('Added');
+  }catch(e){toast('Could not download that link');}
+};
+function renderBin(){
+  const g=$('#bin');
+  g.innerHTML=MEDIA.map(m=>`
+    <div class="mcard">
+      <img src="${m.thumb||m.url}" alt="">
+      <div class="mmeta">
+        <div class="mname">${esc(m.name)}</div>
+        <div class="mut">${m.type==='video'?fmt(m.duration)+' • video':'photo'}</div>
+        <div class="mbtns">
+          <button class="btn" onclick="addToTimeline('${m.id}')">＋ Clip</button>
+          <button class="btn" onclick="setBase('${m.id}')">🖼 Base</button>
+          <button class="btn bad" onclick="rmMedia('${m.id}')">✕</button>
+        </div>
+      </div>
+    </div>`).join('');
+  $('#binEmpty').style.display=MEDIA.length?'none':'block';
+}
+window.addToTimeline=function(id){
+  const m=mById(id); if(!m)return;
+  CLIPS.push({mediaId:id,trimStart:0,trimEnd:m.type==='video'?m.duration:4,speed:1,filter:'none',rot:0,flipH:false});
+  renderClips(); updateDUR(); toast('Added to timeline'); switchTab('clip');
+};
+window.rmMedia=function(id){
+  const i=MEDIA.findIndex(m=>m.id===id); if(i<0)return;
+  for(let j=CLIPS.length-1;j>=0;j--)if(CLIPS[j].mediaId===id)CLIPS.splice(j,1);
+  if(BASE===id)BASE=null,renderBase();
+  MEDIA.splice(i,1); renderBin(); renderClips(); updateDUR();
+};
+window.setBase=function(id){BASE=id;renderBase();toast('Background layer set');};
+
+/* ================= CLIPS ================= */
+const FILTERS={'none':'No filter','grayscale(1)':'Black & White','sepia(.8)':'Vintage','contrast(1.25) saturate(1.35)':'Vivid','brightness(1.12) saturate(1.15) hue-rotate(-8deg)':'Warm','brightness(1.05) saturate(1.2) hue-rotate(12deg)':'Cool','contrast(1.2) saturate(.85) brightness(.95)':'Cinema'};
+const SPEEDS=[0.5,0.75,1,1.25,1.5,2];
+function cDur(c){const m=mById(c.mediaId);if(!m)return 0;const ts=c.trimStart||0;let te=c.trimEnd;if(!(te>ts))te=m.type==='video'?m.duration:4;return Math.max(0,(te-ts))/(c.speed||1);}
+function updateDUR(){DUR=CLIPS.reduce((a,c)=>a+cDur(c),0);$('#ttot').textContent=fmt(DUR);$('#totBadge').textContent=fmt(DUR);}
+function renderClips(){
+  const box=$('#clips');
+  box.innerHTML=CLIPS.map((c,i)=>{
+    const m=mById(c.mediaId); if(!m)return '';
+    return `<div class="clip">
+      <div class="hd">
+        <img src="${m.thumb||m.url}">
+        <div class="nm">${i+1}. ${esc(m.name)}</div>
+        <div class="pill">${fmt(cDur(c))}</div>
+      </div>
+      <div class="fld">
+        <label>Trim start</label><input type="number" step="0.1" min="0" value="${c.trimStart}" oninput="clipSet(${i},'trimStart',+this.value)">
+        <label>Trim end</label><input type="number" step="0.1" min="0" value="${+(c.trimEnd||0).toFixed(2)}" oninput="clipSet(${i},'trimEnd',+this.value)">
+        <label>Speed</label><select onchange="clipSet(${i},'speed',+this.value)">${SPEEDS.map(s=>`<option value="${s}" ${s===(c.speed||1)?'selected':''}>${s}×</option>`).join('')}</select>
+        <label>Filter</label><select onchange="clipSet(${i},'filter',this.value)">${Object.keys(FILTERS).map(k=>`<option value="${esc(k)}" ${k===c.filter?'selected':''}>${FILTERS[k]}</option>`).join('')}</select>
+      </div>
+      <div class="tagrow">
+        <button class="btn sm" onclick="clipRot(${i})">⟳ Rotate ${c.rot||0}°</button>
+        <button class="btn sm" onclick="clipSet(${i},'flipH',${!c.flipH});renderClips()">⇋ Flip</button>
+        <button class="btn sm" onclick="moveClip(${i},-1)">⬅</button>
+        <button class="btn sm" onclick="moveClip(${i},1)">➡</button>
+        <button class="btn sm bad" onclick="rmClip(${i})">✕ Remove</button>
+      </div>
+    </div>`;
+  }).join('');
+  $('#clipsEmpty').style.display=CLIPS.length?'none':'block';
+}
+window.clipSet=function(i,k,v){if(!CLIPS[i])return;CLIPS[i][k]=v;updateDUR();renderClips();};
+window.clipRot=function(i){const c=CLIPS[i];if(!c)return;c.rot=((c.rot||0)+90)%360;renderClips();};
+window.moveClip=function(i,d){const j=i+d;if(j<0||j>=CLIPS.length)return;const t=CLIPS[i];CLIPS[i]=CLIPS[j];CLIPS[j]=t;renderClips();};
+window.rmClip=function(i){CLIPS.splice(i,1);renderClips();updateDUR();};
+
+/* ================= BASE / PIP ================= */
+function renderBase(){
+  const m=BASE?mById(BASE):null;
+  $('#baseNone').style.display=m?'none':'block';
+  $('#baseRow').style.display=m?'flex':'none';
+  $('#pipHint').style.display=m?'block':'none';
+  if(m){$('#baseThumb').src=m.thumb||m.url;$('#baseName').textContent=m.name;$('#baseKind').textContent=m.type==='video'?'Video background':'Photo background';}
+  syncPip();
+}
+$('#btnBaseClear').onclick=()=>{BASE=null;renderBase();};
+function syncPip(){$('#pipX').value=PIP.x;$('#pipY').value=PIP.y;$('#pipW').value=PIP.w;}
+$('#pipX').oninput=e=>{PIP.x=+e.target.value;};
+$('#pipY').oninput=e=>{PIP.y=+e.target.value;};
+$('#pipW').oninput=e=>{PIP.w=+e.target.value;};
+document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{
+  const p=b.dataset.preset;
+  PIP.w=40;PIP.x=p[0]==='t'?6:p[1]==='l'?6:p==='c'?50:54;PIP.y=p[0]==='t'?6:p[1]==='l'?54:p==='c'?50:6;
+  if(p==='tl'){PIP.x=6;PIP.y=6;}if(p==='tr'){PIP.x=54;PIP.y=6;}if(p==='bl'){PIP.x=6;PIP.y=54;}if(p==='br'){PIP.x=54;PIP.y=54;}
+  syncPip();
+});
+
+/* ================= TEXT ================= */
+$('#btnAddText').onclick=()=>{TEXTS.push({text:'New text',color:'#ffffff',size:6,x:50,y:82,always:true,start:0,end:5});renderTexts();};
+function renderTexts(){
+  $('#texts').innerHTML=TEXTS.map((t,i)=>`
+    <div class="tx">
+      <div class="row"><input value="${esc(t.text)}" oninput="txSet(${i},'text',this.value)" style="font-weight:700">
+      <input type="color" value="${t.color}" oninput="txSet(${i},'color',this.value)" style="width:46px"></div>
+      <div class="fld">
+        <label>Size</label><input type="range" min="2" max="18" value="${t.size}" oninput="txSet(${i},'size',+this.value)">
+        <label>X</label><input type="range" min="0" max="100" value="${t.x}" oninput="txSet(${i},'x',+this.value)">
+        <label>Y</label><input type="range" min="0" max="100" value="${t.y}" oninput="txSet(${i},'y',+this.value)">
+      </div>
+      <div class="row" style="margin-top:8px">
+        <label class="mut grow" style="display:flex;gap:6px;align-items:center;font-size:.75rem"><input type="checkbox" ${t.always?'checked':''} onchange="txSet(${i},'always',this.checked)" style="width:auto"> Show the whole video</label>
+        <input type="number" step="0.5" value="${t.start}" oninput="txSet(${i},'start',+this.value)" style="width:70px" placeholder="from s">
+        <input type="number" step="0.5" value="${t.end}" oninput="txSet(${i},'end',+this.value)" style="width:70px" placeholder="to s">
+        <button class="btn sm bad" onclick="rmTx(${i})">✕</button>
+      </div>
+    </div>`).join('');
+  $('#textsEmpty').style.display=TEXTS.length?'none':'block';
+}
+window.txSet=function(i,k,v){if(TEXTS[i])TEXTS[i][k]=v;};
+window.rmTx=function(i){TEXTS.splice(i,1);renderTexts();};
+
+/* ================= STAGE DRAW ================= */
+function locate(t){let acc=0;for(let i=0;i<CLIPS.length;i++){const d=cDur(CLIPS[i]);if(t<acc+d)return{i,off:t-acc};acc+=d;}return CLIPS.length?{i:CLIPS.length-1,off:cDur(CLIPS[CLIPS.length-1])}:null;}
+function drawCover(ctx,src,mw,mh,rx,ry,rw,rh,rot,flipH,filter){
+  if(!src||!mw||!mh)return;
+  ctx.save();
+  ctx.beginPath();ctx.rect(rx,ry,rw,rh);ctx.clip();
+  if(filter&&filter!=='none')ctx.filter=filter;
+  const swap=(rot===90||rot===270);
+  const tw=swap?rh:rw, th=swap?rw:rh;
+  const k=Math.max(tw/mw,th/mh);
+  const dw=mw*k, dh=mh*k;
+  ctx.translate(rx+rw/2,ry+rh/2);
+  if(rot)ctx.rotate(rot*Math.PI/180);
+  ctx.scale(flipH?-1:1,1);
+  ctx.drawImage(src,-dw/2,-dh/2,dw,dh);
+  ctx.restore();
+}
+function drawText(ctx,tx,W,H){
+  const px=Math.max(12,tx.size/100*H);
+  ctx.save();
+  ctx.font='800 '+px+'px -apple-system,Segoe UI,Roboto,sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  const X=tx.x/100*W, Y=tx.y/100*H;
+  ctx.lineWidth=Math.max(2,px/9);ctx.strokeStyle='rgba(0,0,0,.85)';ctx.lineJoin='round';
+  ctx.strokeText(tx.text,X,Y);
+  ctx.fillStyle=tx.color;ctx.fillText(tx.text,X,Y);
+  ctx.restore();
+}
+function drawComposite(ctx,t){
+  const W=ctx.canvas.width,H=ctx.canvas.height;
+  ctx.filter='none';
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  if(BASE){
+    const bm=mById(BASE);
+    if(bm){
+      if(bm.type==='video')drawCover(ctx,bm.el,bm.el.videoWidth,bm.el.videoHeight,0,0,W,H,0,false,'none');
+      else drawCover(ctx,bm.img,bm.img.naturalWidth,bm.img.naturalHeight,0,0,W,H,0,false,'none');
+    }
+  }
+  const loc=locate(t);
+  if(loc){
+    const c=CLIPS[loc.i],m=mById(c.mediaId);
+    if(m){
+      let r={x:0,y:0,w:W,h:H};
+      if(BASE){const pw=PIP.w/100*W,ph=PIP.w/100*W*(9/16);
+        r={x:PIP.x/100*(W-pw),y:PIP.y/100*(H-ph),w:pw,h:ph};}
+      if(m.type==='video')drawCover(ctx,m.el,m.el.videoWidth,m.el.videoHeight,r.x,r.y,r.w,r.h,c.rot||0,c.flipH,c.filter);
+      else drawCover(ctx,m.img,m.img.naturalWidth,m.img.naturalHeight,r.x,r.y,r.w,r.h,c.rot||0,c.flipH,c.filter);
+    }
+  }
+  for(const tx of TEXTS){
+    if(tx.always||(t>=tx.start&&t<=tx.end))drawText(ctx,tx,W,H);
+  }
+}
+function showHint(){
+  $('#hint').style.display=(MEDIA.length||CLIPS.length)?'none':'flex';
+}
+
+/* ================= PREVIEW PLAYER ================= */
+function pauseAll(){MEDIA.forEach(m=>{if(m.type==='video'&&m.el&&!m.el.paused)m.el.pause();});}
+function syncPlayback(t,isPlaying){
+  const loc=locate(t); if(!loc)return;
+  const c=CLIPS[loc.i],m=mById(c.mediaId);
+  if(curIdx!==loc.i){
+    if(curIdx>=0){const p=mById(CLIPS[curIdx].mediaId);if(p&&p.type==='video')p.el.pause();}
+    curIdx=loc.i;
+  }
+  if(m.type!=='video')return;
+  const target=(c.trimStart||0)+loc.off*(c.speed||1);
+  m.el.muted=true; m.el.playbackRate=c.speed||1;
+  if(isPlaying){
+    if(m.el.paused)m.el.play().catch(()=>{});
+    if(Math.abs(m.el.currentTime-target)>0.35)m.el.currentTime=target;
+  }else{
+    if(!m.el.paused)m.el.pause();
+    if(Math.abs(m.el.currentTime-target)>0.05)m.el.currentTime=target;
+  }
+  const bm=BASE?mById(BASE):null;
+  if(bm&&bm.type==='video'){
+    bm.el.muted=true;
+    if(isPlaying){if(bm.el.paused)bm.el.play().catch(()=>{});}
+    else if(!bm.el.paused)bm.el.pause();
+  }
+}
+function tick(){
+  requestAnimationFrame(tick);
+  showHint();
+  if(EXPORTING)return;
+  let t=playing?(performance.now()-pT0)/1000:pT;
+  if(t>=DUR){if(playing){playing=false;pT=0;curIdx=-1;pauseAll();$('#btnPlay').textContent='▶';}t=DUR;}
+  syncPlayback(t,playing);
+  drawComposite(stageCtx,t);
+  $('#tcur').textContent=fmt(t);
+  if(!seekDrag)$('#seek').value=DUR?Math.min(1000,t/DUR*1000):0;
+}
+let seekDrag=false;
+$('#seek').addEventListener('pointerdown',()=>seekDrag=true);
+$('#seek').addEventListener('pointerup',()=>seekDrag=false);
+$('#seek').addEventListener('input',e=>{pT=e.target.value/1000*DUR;playing=false;pauseAll();$('#btnPlay').textContent='▶';curIdx=-1;});
+$('#btnPlay').onclick=()=>{
+  if(!CLIPS.length)return toast('Add clips to the timeline first');
+  if(!playing){if(pT>=DUR)pT=0;playing=true;pT0=performance.now()-pT*1000;curIdx=-1;$('#btnPlay').textContent='⏸';}
+  else{playing=false;pT=Math.min((performance.now()-pT0)/1000,DUR);pauseAll();$('#btnPlay').textContent='▶';}
+};
+
+/* pip drag on stage */
+(function(){
+  let drag=null;
+  const pt=e=>{const r=stage.getBoundingClientRect();return{px:(e.clientX-r.left)/r.width*100,py:(e.clientY-r.top)/r.height*100};};
+  stage.addEventListener('pointerdown',e=>{
+    if(!BASE||!CLIPS.length)return;
+    const r=stage.getBoundingClientRect();
+    const pw=PIP.w, ph=PIP.w*(9/16)*(r.height/r.width);
+    const cx=PIP.x/100*(100-pw)+pw/2, cy=PIP.y/100*(100-ph)+ph/2;
+    const d=Math.hypot(pt(e).px-((PIP.x/100*(100-pw))+pw),pt(e).py-(PIP.y/100*(100-ph)+ph));
+    const inBox=pt(e).px>=PIP.x/100*(100-pw)-2&&pt(e).px<=PIP.x/100*(100-pw)+pw+2&&pt(e).py>=PIP.y/100*(100-ph)-2&&pt(e).py<=PIP.y/100*(100-ph)+ph+2;
+    drag={mode:inBox?(d>pw*0.38?'size':'move'):null,sx:pt(e).px,sy:pt(e).py,ox:PIP.x,oy:PIP.y,ow:PIP.w};
+    stage.setPointerCapture(e.pointerId);
+  });
+  stage.addEventListener('pointermove',e=>{
+    if(!drag||!drag.mode)return;
+    const p=pt(e);
+    if(drag.mode==='move'){PIP.x=Math.min(100,Math.max(0,drag.ox+(p.px-drag.sx)));PIP.y=Math.min(100,Math.max(0,drag.oy+(p.py-drag.sy)));}
+    else{PIP.w=Math.min(100,Math.max(10,drag.ow+(p.px-drag.sx)));}
+    syncPip();
+  });
+  stage.addEventListener('pointerup',()=>drag=null);
+})();
+
+/* ================= MUSIC ================= */
+$('#btnMusic').onclick=()=>$('#musicIn').click();
+$('#musicIn').onchange=e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const url=URL.createObjectURL(f);
+  const el=new Audio(url); el.loop=true;
+  MUSIC={name:f.name,el,url};
+  $('#musicName').textContent='🎵 '+f.name;
+  $('#btnMusicClear').style.display='inline-block';
+  $('#musicVolRow').style.display='grid';
+  e.target.value='';
+};
+$('#btnMusicClear').onclick=()=>{MUSIC=null;$('#musicName').textContent='No music added.';$('#btnMusicClear').style.display='none';$('#musicVolRow').style.display='none';};
+$('#musicVol').oninput=e=>{if(MUSIC_GAIN)MUSIC_GAIN.gain.value=e.target.value/100;};
+
+/* ================= EXPORT ================= */
+$('#resSel').onchange=e=>{
+  const[a,b]=e.target.value.split('x');RES={w:+a,h:+b};
+  stage.width=RES.w;stage.height=RES.h;exportCanvas.width=RES.w;exportCanvas.height=RES.h;
+  $('#resBadge').textContent=RES.w+'×'+RES.h;
+};
+$('#qualSel').onchange=e=>VBIT=+e.target.value;
+$('#btnExport').onclick=doExport;
+
+async function doExport(){
+  if(EXPORTING)return;
+  if(!CLIPS.length)return toast('Add clips to the timeline first');
+  EXPORTING=true;curIdx=-1;
+  const btn=$('#btnExport');btn.disabled=true;btn.textContent='⏳ EXPORTING…';
+  $('#result').style.display='none';$('#prog').style.width='0%';
+  try{
+    await Promise.all(CLIPS.map(c=>new Promise(res=>{
+      const m=mById(c.mediaId);
+      if(!m)return res();
+      if(m.type==='video'){if(m.el.readyState>=1)res();else m.el.addEventListener('loadedmetadata',res,{once:true});setTimeout(res,4000);}
+      else{if(m.img.complete&&m.img.naturalWidth)res();else m.img.onload=res;setTimeout(res,4000);}
+    })));
+    const W=RES.w,H=RES.h;
+    exportCanvas.width=W;exportCanvas.height=H;
+    const stream=exportCanvas.captureStream(30);
+    const AC=new (window.AudioContext||window.webkitAudioContext)();
+    AUDIO_CTXS.push(AC);
+    const dest=AC.createMediaStreamDestination();
+    const master=AC.createGain();master.gain.value=1;
+    master.connect(dest);master.connect(AC.destination);
+    for(const c of CLIPS){
+      const m=mById(c.mediaId);
+      if(!m||m.type!=='video')continue;
+      let node=AUDIO_NODES.get(m.el);
+      if(!node){node=AC.createMediaElementSource(m.el);AUDIO_NODES.set(m.el,node);node.connect(master);}
+    }
+    if(BASE){const bm=mById(BASE);if(bm&&bm.type==='video'){
+      let node=AUDIO_NODES.get(bm.el);
+      if(!node){node=AC.createMediaElementSource(bm.el);AUDIO_NODES.set(bm.el,node);node.connect(master);}
+    }}
+    if(MUSIC&&MUSIC.el){
+      let node=AUDIO_NODES.get(MUSIC.el);
+      if(!node){node=AC.createMediaElementSource(MUSIC.el);node.connect(MUSIC_GAIN||master);AUDIO_NODES.set(MUSIC.el,node);}
+      if(!MUSIC_GAIN){MUSIC_GAIN=AC.createGain();MUSIC_GAIN.gain.value=$('#musicVol').value/100;node.disconnect();node.connect(MUSIC_GAIN);MUSIC_GAIN.connect(master);}
+      MUSIC.el.currentTime=0;
+    }
+    const at=dest.stream.getAudioTracks()[0];
+    if(at)stream.addTrack(at);
+    if(typeof MediaRecorder==='undefined')throw new Error('This browser cannot export video. Use Chrome.');
+    const mime=['video/mp4;codecs=avc1','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus'].find(t=>MediaRecorder.isTypeSupported(t))||'';
+    const rec=new MediaRecorder(stream,Object.assign({videoBitsPerSecond:VBIT,audioBitsPerSecond:128000},mime?{mimeType:mime}:{}));
+    const chunks=[];rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
+    const done=new Promise(r=>rec.onstop=r);
+    await AC.resume().catch(()=>{});
+    rec.start(500);
+    for(const c of CLIPS){const m=mById(c.mediaId);if(m&&m.type==='video'){m.el.muted=false;m.el.playbackRate=c.speed||1;m.el.currentTime=c.trimStart||0;}}
+    const bm=BASE?mById(BASE):null;
+    if(bm&&bm.type==='video'){bm.el.muted=false;bm.el.loop=true;bm.el.currentTime=0;bm.el.play().catch(()=>{});}
+    if(MUSIC&&MUSIC.el){MUSIC.el.muted=false;MUSIC.el.loop=true;MUSIC.el.play().catch(()=>{});}
+    const t0=performance.now();
+    let stopped=false,exIdx=-1;
+    const stopAll=()=>{
+      CLIPS.forEach(c=>{const m=mById(c.mediaId);if(m&&m.type==='video')m.el.pause();});
+      if(bm&&bm.type==='video')bm.el.pause();
+      if(MUSIC&&MUSIC.el)MUSIC.el.pause();
+    };
+    (function frame(){
+      let t=(performance.now()-t0)/1000;
+      if(t>=DUR){t=DUR;stopped=true;}
+      const loc=locate(t);
+      if(loc&&exIdx!==loc.i){
+        if(exIdx>=0){const p=mById(CLIPS[exIdx].mediaId);if(p&&p.type==='video')p.el.pause();}
+        exIdx=loc.i;
+        const c=CLIPS[loc.i],m=mById(c.mediaId);
+        if(m&&m.type==='video'){m.el.muted=false;m.el.playbackRate=c.speed||1;m.el.currentTime=(c.trimStart||0)+loc.off*(c.speed||1);m.el.play().catch(()=>{});}
+      }else if(loc){
+        const c=CLIPS[loc.i],m=mById(c.mediaId);
+        if(m&&m.type==='video'){
+          const target=(c.trimStart||0)+loc.off*(c.speed||1);
+          if(m.el.paused)m.el.play().catch(()=>{});
+          if(Math.abs(m.el.currentTime-target)>0.4)m.el.currentTime=target;
+        }
+      }
+      drawComposite(exportCtx,t);
+      drawComposite(stageCtx,t);
+      $('#prog').style.width=(t/DUR*100)+'%';
+      $('#progTxt').textContent='Rendering… '+Math.round(t/DUR*100)+'% — keep this screen open';
+      if(stopped){stopAll();setTimeout(()=>{if(rec.state!=='inactive')rec.stop();},350);return;}
+      requestAnimationFrame(frame);
+    })();
+    await done;
+    const type=(rec.mimeType||mime||'video/webm').split(';')[0];
+    const blob=new Blob(chunks,{type});
+    const url=URL.createObjectURL(blob);
+    const ext=type.indexOf('mp4')>=0?'mp4':'webm';
+    $('#resultVid').src=url;
+    $('#resultMeta').textContent=fmt(DUR)+' • '+(blob.size/1048576).toFixed(1)+'MB • '+type.split('/')[1].toUpperCase()+' • '+W+'×'+H;
+    const a=$('#btnSave');a.href=url;a.download='nevercut-'+Date.now()+'.'+ext;
+    $('#result').style.display='block';
+    $('#progTxt').textContent='Export complete ✅';
+    toast('Export complete!');
+    $('#result').scrollIntoView({behavior:'smooth'});
+  }catch(err){
+    toast('Export failed: '+(err&&err.message?err.message:'unknown error'));
+    $('#progTxt').textContent='Export failed. Please try again.';
+  }finally{
+    EXPORTING=false;btn.disabled=false;btn.textContent='🎬 EXPORT VIDEO';
+    pauseAll();playing=false;pT=0;curIdx=-1;$('#btnPlay').textContent='▶';
+  }
+}
+
+/* ================= TABS ================= */
+function switchTab(p){
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+  $('#p-'+p).classList.add('on');
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.p===p));
+  window.scrollTo({top:0});
+}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchTab(b.dataset.p));
+
+/* ================= INSTALL / PWA ================= */
+let deferred=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('#btnInstall').style.display='inline-block';});
+$('#btnInstall').onclick=async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;$('#btnInstall').style.display='none';};
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+
+renderBin();renderClips();renderTexts();renderBase();updateDUR();
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
