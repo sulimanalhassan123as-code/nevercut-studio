@@ -31,7 +31,7 @@ input[type=color]{padding:2px;height:42px;}
 .btn:active{transform:scale(.97);}
 .btn.pri{background:linear-gradient(135deg,#0ea5c9,#7c5cf0);border:none;color:#fff;}
 .btn.gold{background:linear-gradient(135deg,#f5b942,#e88a1d);border:none;color:#231803;}
-.btn.bad{background:#3a1d24;color:#ffb4b4;border:1px solid:#5c2a34;}
+.btn.bad{background:#3a1d24;color:#ffb4b4;border:1px solid #5c2a34;}
 .btn.sm{padding:7px 10px;font-size:.8rem;border-radius:9px;}
 .btn[disabled]{opacity:.45;pointer-events:none;}
 .wrap{max-width:680px;margin:0 auto;padding:12px;}
@@ -50,8 +50,8 @@ input[type=color]{padding:2px;height:42px;}
 .tl{font-size:.75rem;color:var(--mut);font-variant-numeric:tabular-nums;flex:none;}
 /* tabs */
 .tabs{position:fixed;bottom:0;left:0;right:0;z-index:40;background:rgba(10,14,22,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom));}
-.tab{background:none;border:none;color:var(--mut);font-size:.68rem;font-weight:700;display:flex;flex-direction:column;gap:3px;align-items:center;padding:4px 12px;border-radius:12px;cursor:pointer;}
-.tab .ic{font-size:1.25rem;}
+.tab{background:none;border:none;color:var(--mut);font-size:.66rem;font-weight:700;display:flex;flex-direction:column;gap:3px;align-items:center;padding:4px 10px;border-radius:12px;cursor:pointer;}
+.tab .ic{font-size:1.2rem;}
 .tab.on{color:var(--acc);background:#0f2733;}
 .panel{display:none;}
 .panel.on{display:block;}
@@ -73,8 +73,17 @@ input[type=color]{padding:2px;height:42px;}
 .fld select{padding:7px 8px;font-size:.85rem;}
 .tagrow{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
 .empty{text-align:center;color:var(--mut);font-size:.82rem;padding:18px 8px;border:1px dashed var(--line);border-radius:12px;}
-/* text layers */
-.tx{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;}
+/* wallpapers */
+.walls{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:8px;}
+.wall{height:38px;border-radius:10px;border:2px solid transparent;cursor:pointer;}
+.wall.on{border-color:var(--acc);}
+.lay{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.lay .btn{padding:9px 4px;font-size:.72rem;text-align:center;}
+.lay .btn.on{background:#0f2733;color:var(--acc);border-color:var(--acc);}
+/* captions */
+.cap{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:8px;margin-bottom:8px;display:grid;grid-template-columns:auto 1fr auto;gap:6px;align-items:center;}
+.cap .t{font-size:.66rem;color:var(--mut);font-variant-numeric:tabular-nums;width:86px;}
+.cap input{padding:7px 8px;font-size:.85rem;}
 /* export */
 .prog{height:14px;background:var(--bg2);border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-top:10px;}
 .prog>div{height:100%;width:0%;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .3s;}
@@ -82,9 +91,9 @@ input[type=color]{padding:2px;height:42px;}
 #result video{width:100%;border-radius:12px;background:#000;margin-top:10px;}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#0f172a;border:1px solid var(--line);color:var(--txt);padding:10px 18px;border-radius:999px;font-size:.85rem;z-index:99;opacity:0;transition:opacity .3s;pointer-events:none;max-width:86vw;text-align:center;}
 .toast.on{opacity:1;}
-.details summary{outline:none}
 .badge{display:inline-block;background:#0f2733;color:var(--acc);border-radius:999px;padding:2px 9px;font-size:.66rem;font-weight:800;letter-spacing:.5px;}
 hr.sep{border:none;border-top:1px solid var(--line);margin:12px 0;}
+details summary{outline:none;}
 </style>
 </head>
 <body>
@@ -107,7 +116,7 @@ hr.sep{border:none;border-top:1px solid var(--line);margin:12px 0;}
       <input type="range" id="seek" min="0" max="1000" value="0" style="flex:1">
       <div class="tl"><span id="tcur">0:00</span> / <span id="ttot">0:00</span></div>
     </div>
-    <div class="mut" id="pipHint" style="margin-top:8px;display:none">Tip: drag on the preview to move the top video. Drag its corner handle to resize it.</div>
+    <div class="mut" id="pipHint" style="margin-top:8px;display:none">Drag on the preview to move the floating video. Drag its bottom-right corner to resize.</div>
   </div>
 
   <!-- MEDIA -->
@@ -116,10 +125,10 @@ hr.sep{border:none;border-top:1px solid var(--line);margin:12px 0;}
       <details>
         <summary style="font-weight:800;font-size:.9rem;cursor:pointer">❔ How to edit your video — 4 easy steps</summary>
         <div class="mut" style="margin-top:10px;line-height:1.8">
-          <b>1.</b> Import your videos and photos from your phone.<br>
-          <b>2.</b> Tap <b>＋ Clip</b> on each one, in the order you want them to play. In <b>Timeline</b> you can trim, change speed, add filters and fades.<br>
-          <b>3.</b> Reaction video: in <b>Layers</b>, tap <b>🖼 Base</b> on the video or photo you want BELOW, then your timeline clip floats on top — drag it on the preview to position it.<br>
-          <b>4.</b> Add captions or emoji in <b>Text</b>, record your voice in <b>Export</b>, tap EXPORT VIDEO, then SAVE TO PHONE. No watermark, ever.
+          <b>1.</b> Import your videos and photos. Tap <b>＋ Clip</b> on each, in playing order.<br>
+          <b>2.</b> <b>Timeline</b>: trim, speed, filters, fades, volume. <b>Layers</b>: pick a wallpaper color, then a background video/photo, then the layout — Floating (small video inside big video), Split Screen side-by-side, Stacked, or Big+Small.<br>
+          <b>3.</b> <b>Text</b>: emoji stickers, captions, or tap <b>Auto-Caption</b> and the app writes the spoken words on the video by itself.<br>
+          <b>4.</b> <b>Export</b>: music, voiceover, EXPORT VIDEO, SAVE TO PHONE. No watermark.
         </div>
       </details>
     </div>
@@ -143,27 +152,51 @@ hr.sep{border:none;border-top:1px solid var(--line);margin:12px 0;}
     <div class="card">
       <h2><span class="dot"></span>TIMELINE — MERGE YOUR CLIPS <span class="badge" id="totBadge">0:00</span></h2>
       <div id="clips"></div>
-      <div id="clipsEmpty" class="empty">The timeline is empty. In the Media tab, tap <b>+ Clip</b> on a video or photo to add it here. Clips play one after another and export as ONE video.</div>
+      <div id="clipsEmpty" class="empty">Empty. In the Media tab, tap <b>＋ Clip</b> on videos/photos to add them here. They play one after another and export as ONE video.</div>
     </div>
   </div>
 
   <!-- LAYERS -->
   <div class="panel" id="p-layer">
     <div class="card">
-      <h2><span class="dot"></span>REACTION LAYOUT — PICTURE BELOW, VIDEO ON TOP</h2>
-      <div id="baseNone" class="empty">Pick a background below from your media (a picture or video). Your timeline clips will float on top of it, exactly how content creators do reaction videos.</div>
-      <div id="baseRow" style="display:none" class="row" style="margin-bottom:8px">
+      <h2><span class="dot"></span>WALLPAPER — COLOR BEHIND YOUR VIDEO</h2>
+      <div class="walls" id="wallRow"></div>
+      <div class="tagrow" style="margin-top:10px">
+        <button class="btn sm" id="wallNone">⬛ Black (none)</button>
+        <label class="btn sm" style="display:flex;align-items:center;gap:6px">🎨 Custom <input type="color" id="wallColor" value="#1e3a8a" style="width:34px;height:26px;padding:0;border:none"></label>
+      </div>
+    </div>
+    <div class="card">
+      <h2><span class="dot"></span>LAYOUT — HOW VIDEOS MERGE TOGETHER</h2>
+      <div class="lay">
+        <button class="btn on" data-lay="float">🖼 Floating<small style="display:block;font-weight:500">small inside big</small></button>
+        <button class="btn" data-lay="splitV">◫ Split<small style="display:block;font-weight:500">side by side</small></button>
+        <button class="btn" data-lay="splitH">▤ Stacked<small style="display:block;font-weight:500">top &amp; bottom</small></button>
+        <button class="btn" data-lay="bigsmall">▮ Big+Small<small style="display:block;font-weight:500">75 / 25</small></button>
+      </div>
+      <div id="layNote" class="mut" style="margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <h2><span class="dot"></span>BACKGROUND LAYER (THE BIG VIDEO)</h2>
+      <div id="baseNone" class="empty">Pick the main video or photo below from your media. Your timeline clips will sit on top of it — merge two different videos into one.</div>
+      <div id="baseRow" style="display:none" class="row">
         <img id="baseThumb" style="width:70px;height:44px;object-fit:cover;border-radius:8px">
         <div class="grow"><div class="mname" id="baseName"></div><div class="mut" id="baseKind"></div></div>
         <button class="btn sm bad" id="btnBaseClear">✕</button>
       </div>
+      <div class="tagrow">
+        <button class="btn sm" onclick="toast('In the Media tab, tap 🖼 Base on the video you want below')">❔ How to pick</button>
+      </div>
+      <div class="fld" id="baseVolRow" style="display:none">
+        <label>BG sound</label><input type="range" id="baseVol" min="0" max="100" value="100">
+      </div>
+    </div>
+    <div class="card" id="pipCard" style="display:none">
+      <h2><span class="dot"></span>FLOATING VIDEO SIZE &amp; POSITION</h2>
       <div class="fld">
         <label>Size</label><input type="range" id="pipW" min="10" max="100" value="44">
         <label>Position X</label><input type="range" id="pipX" min="0" max="100" value="50">
         <label>Position Y</label><input type="range" id="pipY" min="0" max="100" value="50">
-      </div>
-      <div class="fld" id="baseVolRow" style="display:none">
-        <label>BG sound</label><input type="range" id="baseVol" min="0" max="100" value="100">
       </div>
       <div class="tagrow">
         <button class="btn sm" data-preset="tl">↖ Top left</button>
@@ -178,11 +211,23 @@ hr.sep{border:none;border-top:1px solid var(--line);margin:12px 0;}
   <!-- TEXT -->
   <div class="panel" id="p-text">
     <div class="card">
+      <h2><span class="dot"></span>AUTO-CAPTIONS — SPOKEN WORDS ON SCREEN 🗣️</h2>
+      <div class="row">
+        <button class="btn pri grow" id="btnCaps">✨ Auto-Caption My Video</button>
+        <button class="btn sm" id="btnCapsClear" style="display:none">🗑</button>
+      </div>
+      <div class="mut" id="capTxt" style="margin-top:8px">The app listens to your video's sound and writes every spoken word on the screen, TikTok style. First run downloads a small speech model (one time). Works best with clear voice.</div>
+      <div class="tagrow">
+        <label class="btn sm" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="capsOn" checked style="width:auto"> Show captions on video</label>
+      </div>
+      <div id="capList" style="margin-top:8px"></div>
+    </div>
+    <div class="card">
       <h2><span class="dot"></span>TEXT &amp; EMOJI STICKERS</h2>
       <div id="emojiRow" class="tagrow" style="margin-bottom:10px"></div>
       <button class="btn pri" id="btnAddText" style="width:100%">＋ Add Text Layer</button>
       <div id="texts"></div>
-      <div id="textsEmpty" class="empty">No text layers. Add titles, captions, names, anything.</div>
+      <div id="textsEmpty" class="empty">No text layers yet.</div>
     </div>
   </div>
 
@@ -261,10 +306,12 @@ const fmt=t=>{t=Math.max(0,t);const m=Math.floor(t/60),s=Math.floor(t%60);return
 
 let SEQ=0;
 const MEDIA=[], CLIPS=[], TEXTS=[];
-const AUDIO_CTXS=[]; const AUDIO_NODES=new WeakMap();
-let BASE=null;
+const AUDIO_NODES=[]; const AUDIO_NODES_MAP=new WeakMap(); const GAIN_PER_EL=new WeakMap();
+let BASE=null, WALL=null, LAYOUT='float';
 const PIP={x:50,y:50,w:44};
-let MUSIC=null;
+let MUSIC=null, VOICE=null, voRec=null, voChunks=[];
+let CAPS=[], asrPipe=null, capBusy=false;
+let BASEVOL=100;
 let DUR=0, RES={w:1280,h:720}, VBIT=6000000;
 let playing=false, pT=0, pT0=0, EXPORTING=false;
 let curIdx=-1;
@@ -272,7 +319,7 @@ let curIdx=-1;
 const stage=$('#stage'); const stageCtx=stage.getContext('2d');
 const exportCanvas=document.createElement('canvas'); const exportCtx=exportCanvas.getContext('2d');
 
-function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('on'),2600);}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('on'),3000);}
 const mById=id=>MEDIA.find(m=>m.id===id);
 
 /* ================= MEDIA ================= */
@@ -280,7 +327,7 @@ function addMedia(file){
   const id='m'+(++SEQ);
   const url=URL.createObjectURL(file);
   const isVid=(file.type||'').startsWith('video')||/\.(mp4|webm|mov|mkv|m4v)$/i.test(file.name);
-  const m={id,name:file.name||('Media '+SEQ),type:isVid?'video':'image',url,duration:isVid?0:4,thumb:null};
+  const m={id,name:file.name||('Media '+SEQ),type:isVid?'video':'image',url,blob:file,duration:isVid?0:4,thumb:null,audioBuf:undefined};
   if(isVid){
     const el=document.createElement('video');
     el.src=url; el.playsInline=true; el.preload='auto'; el.muted=true; el.crossOrigin='anonymous';
@@ -316,7 +363,7 @@ $('#btnUrl').onclick=async()=>{
     const r=await fetch(u); if(!r.ok)throw new Error('HTTP '+r.status);
     const b=await r.blob();
     const nm=u.split('/').pop().split('?')[0]||'download';
-    addMedia(new File([b],nm,{type:b.type||(b.type.startsWith('video')?b.type:'video/mp4')}));
+    addMedia(new File([b],nm,{type:b.type||'video/mp4'}));
     $('#urlIn').value=''; toast('Added');
   }catch(e){toast('Could not download that link');}
 };
@@ -339,13 +386,13 @@ function renderBin(){
 }
 window.addToTimeline=function(id){
   const m=mById(id); if(!m)return;
-  CLIPS.push({mediaId:id,trimStart:0,trimEnd:m.type==='video'?m.duration:4,speed:1,filter:'none',rot:0,flipH:false});
+  CLIPS.push({mediaId:id,trimStart:0,trimEnd:m.type==='video'?m.duration:4,speed:1,filter:'none',rot:0,flipH:false,vol:100,fadeIn:0,fadeOut:0,fit:'cover'});
   renderClips(); updateDUR(); toast('Added to timeline'); switchTab('clip');
 };
 window.rmMedia=function(id){
   const i=MEDIA.findIndex(m=>m.id===id); if(i<0)return;
   for(let j=CLIPS.length-1;j>=0;j--)if(CLIPS[j].mediaId===id)CLIPS.splice(j,1);
-  if(BASE===id)BASE=null,renderBase();
+  if(BASE===id){BASE=null;renderBase();}
   MEDIA.splice(i,1); renderBin(); renderClips(); updateDUR();
 };
 window.setBase=function(id){BASE=id;renderBase();toast('Background layer set');};
@@ -370,6 +417,7 @@ function renderClips(){
         <label>Trim end</label><input type="number" step="0.1" min="0" value="${+(c.trimEnd||0).toFixed(2)}" oninput="clipSet(${i},'trimEnd',+this.value)">
         <label>Speed</label><select onchange="clipSet(${i},'speed',+this.value)">${SPEEDS.map(s=>`<option value="${s}" ${s===(c.speed||1)?'selected':''}>${s}×</option>`).join('')}</select>
         <label>Filter</label><select onchange="clipSet(${i},'filter',this.value)">${Object.keys(FILTERS).map(k=>`<option value="${esc(k)}" ${k===c.filter?'selected':''}>${FILTERS[k]}</option>`).join('')}</select>
+        <label>Fit</label><select onchange="clipSet(${i},'fit',this.value)"><option value="cover" ${c.fit==='contain'?'':'selected'}>Fill frame</option><option value="contain" ${c.fit==='contain'?'selected':''}>Show whole video</option></select>
         <label>Volume</label><input type="range" min="0" max="100" value="${c.vol==null?100:c.vol}" oninput="clipSet(${i},'vol',+this.value)">
         <label>Fade in s</label><input type="number" step="0.25" min="0" max="3" value="${c.fadeIn||0}" oninput="clipSet(${i},'fadeIn',+this.value)">
         <label>Fade out s</label><input type="number" step="0.25" min="0" max="3" value="${c.fadeOut||0}" oninput="clipSet(${i},'fadeOut',+this.value)">
@@ -390,33 +438,96 @@ window.clipRot=function(i){const c=CLIPS[i];if(!c)return;c.rot=((c.rot||0)+90)%3
 window.moveClip=function(i,d){const j=i+d;if(j<0||j>=CLIPS.length)return;const t=CLIPS[i];CLIPS[i]=CLIPS[j];CLIPS[j]=t;renderClips();};
 window.rmClip=function(i){CLIPS.splice(i,1);renderClips();updateDUR();};
 
+/* ================= WALLPAPER ================= */
+const WALLS=[['Sunset','#ff5f6d','#ffc371'],['Ocean','#2193b0','#6dd5ed'],['Purple','#8E2DE2','#4A00E0'],['Forest','#134E5E','#71B280'],['Midnight','#0f0c29','#302b63'],['Fire','#f12711','#f5af19'],['Mint','#00b09b','#96c93d'],['Pink','#ee9ca7','#ffdde1'],['Gold','#F7971E','#FFD200'],['Sky','#4facfe','#00f2fe'],['Charcoal','#232526','#414345'],['Rose','#FF512F','#DD2476']];
+function renderWalls(){
+  $('#wallRow').innerHTML=WALLS.map((w,i)=>`<div class="wall ${WALL&&WALL.name===w[0]?'on':''}" style="background:linear-gradient(135deg,${w[1]},${w[2]})" onclick="setWall(${i})" title="${w[0]}"></div>`).join('');
+}
+window.setWall=function(i){WALL={name:WALLS[i][0],a:WALLS[i][1],b:WALLS[i][2]};renderWalls();toast(WALLS[i][0]+' wallpaper set');};
+$('#wallNone').onclick=()=>{WALL=null;renderWalls();toast('Black background');};
+$('#wallColor').oninput=e=>{WALL={solid:e.target.value};renderWalls();};
+function drawWall(ctx,W,H){
+  if(!WALL){ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);return;}
+  if(WALL.solid){ctx.fillStyle=WALL.solid;ctx.fillRect(0,0,W,H);return;}
+  const g=ctx.createLinearGradient(0,0,W,H);
+  g.addColorStop(0,WALL.a);g.addColorStop(1,WALL.b);
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+}
+
+/* ================= LAYOUTS ================= */
+function baseRect(W,H){
+  if(LAYOUT==='splitV')return{x:0,y:0,w:W/2,h:H};
+  if(LAYOUT==='splitH')return{x:0,y:0,w:W,h:H/2};
+  if(LAYOUT==='bigsmall')return{x:0,y:0,w:W*.72,h:H};
+  return{x:0,y:0,w:W,h:H};
+}
+function pipRect(W,H,t){
+  if(LAYOUT==='splitV')return{x:W/2,y:0,w:W/2,h:H};
+  if(LAYOUT==='splitH')return{x:0,y:H/2,w:W,h:H/2};
+  if(LAYOUT==='bigsmall')return{x:W*.72,y:0,w:W*.28,h:H};
+  const loc=locate(t||0);
+  let asp=16/9;
+  if(loc){
+    const c=CLIPS[loc.i],m=mById(c.mediaId);
+    if(m){
+      let sw=m.type==='video'?m.el.videoWidth:m.img.naturalWidth;
+      let sh=m.type==='video'?m.el.videoHeight:m.img.naturalHeight;
+      if((c.rot||0)%180)asp=Math.max(0.2,sh/(sw||1));else asp=Math.max(0.2,(sw||1)/sh);
+    }
+  }
+  let pw=PIP.w/100*W, ph=pw/asp;
+  if(ph>H*.96){ph=H*.96;pw=ph*asp;}
+  return{x:PIP.x/100*(W-pw),y:PIP.y/100*(H-ph),w:pw,h:ph};
+}
+function renderLayout(){
+  document.querySelectorAll('[data-lay]').forEach(b=>{
+    b.classList.toggle('on',b.dataset.lay===LAYOUT);
+  });
+  $('#pipCard').style.display=LAYOUT==='float'?'block':'none';
+  $('#pipHint').style.display=(LAYOUT==='float'&&BASE)?'block':'none';
+  $('#layNote').textContent={
+    float:'Floating: the big video/photo fills the screen and your timeline clips float on top — drag them on the preview. Classic reaction style.',
+    splitV:'Split Screen: background on the left, your timeline clips on the right. 50 / 50.',
+    splitH:'Stacked: background on top, timeline clips below. 50 / 50.',
+    bigsmall:'Big+Small: background takes 72%, timeline clips take the right 28%.'
+  }[LAYOUT];
+}
+document.querySelectorAll('[data-lay]').forEach(b=>b.onclick=()=>{LAYOUT=b.dataset.lay;renderLayout();toast('Layout changed');});
+
 /* ================= BASE / PIP ================= */
 function renderBase(){
   const m=BASE?mById(BASE):null;
   $('#baseNone').style.display=m?'none':'block';
   $('#baseRow').style.display=m?'flex':'none';
-  $('#pipHint').style.display=m?'block':'none';
   if(m){$('#baseThumb').src=m.thumb||m.url;$('#baseName').textContent=m.name;$('#baseKind').textContent=m.type==='video'?'Video background':'Photo background';}
   $('#baseVolRow').style.display=(m&&m.type==='video')?'grid':'none';
-  syncPip();
+  $('#pipHint').style.display=(m&&LAYOUT==='float')?'block':'none';
 }
 $('#btnBaseClear').onclick=()=>{BASE=null;renderBase();};
+$('#baseVol').oninput=e=>BASEVOL=+e.target.value;
 function syncPip(){$('#pipX').value=PIP.x;$('#pipY').value=PIP.y;$('#pipW').value=PIP.w;}
 $('#pipX').oninput=e=>{PIP.x=+e.target.value;};
 $('#pipY').oninput=e=>{PIP.y=+e.target.value;};
 $('#pipW').oninput=e=>{PIP.w=+e.target.value;};
 document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{
   const p=b.dataset.preset;
-  PIP.w=40;PIP.x=p[0]==='t'?6:p[1]==='l'?6:p==='c'?50:54;PIP.y=p[0]==='t'?6:p[1]==='l'?54:p==='c'?50:6;
-  if(p==='tl'){PIP.x=6;PIP.y=6;}if(p==='tr'){PIP.x=54;PIP.y=6;}if(p==='bl'){PIP.x=6;PIP.y=54;}if(p==='br'){PIP.x=54;PIP.y=54;}
+  PIP.w=40;
+  if(p==='tl'){PIP.x=0;PIP.y=0;}
+  if(p==='tr'){PIP.x=100;PIP.y=0;}
+  if(p==='bl'){PIP.x=0;PIP.y=100;}
+  if(p==='br'){PIP.x=100;PIP.y=100;}
+  if(p==='c'){PIP.x=50;PIP.y=50;}
   syncPip();
 });
 
-/* ================= TEXT ================= */
+/* ================= TEXT & EMOJI ================= */
+const EMOJI=['🔥','😂','😱','💯','😍','🤯','✨','🎉','👉','🙏','❤️','👀','🤣','🚀','💰','😅'];
+$('#emojiRow').innerHTML=EMOJI.map(e=>`<button class="btn sm" style="font-size:1.15rem" onclick="addEmoji('${e}')">${e}</button>`).join('');
+window.addEmoji=e=>{TEXTS.push({text:e,color:'#ffffff',size:14,x:50,y:18,always:true,start:0,end:5});renderTexts();toast('Sticker added');};
 $('#btnAddText').onclick=()=>{TEXTS.push({text:'New text',color:'#ffffff',size:6,x:50,y:82,always:true,start:0,end:5});renderTexts();};
 function renderTexts(){
   $('#texts').innerHTML=TEXTS.map((t,i)=>`
-    <div class="tx">
+    <div class="tx" style="background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:10px">
       <div class="row"><input value="${esc(t.text)}" oninput="txSet(${i},'text',this.value)" style="font-weight:700">
       <input type="color" value="${t.color}" oninput="txSet(${i},'color',this.value)" style="width:46px"></div>
       <div class="fld">
@@ -425,7 +536,7 @@ function renderTexts(){
         <label>Y</label><input type="range" min="0" max="100" value="${t.y}" oninput="txSet(${i},'y',+this.value)">
       </div>
       <div class="row" style="margin-top:8px">
-        <label class="mut grow" style="display:flex;gap:6px;align-items:center;font-size:.75rem"><input type="checkbox" ${t.always?'checked':''} onchange="txSet(${i},'always',this.checked)" style="width:auto"> Show the whole video</label>
+        <label class="mut grow" style="display:flex;gap:6px;align-items:center;font-size:.75rem"><input type="checkbox" ${t.always?'checked':''} onchange="txSet(${i},'always',this.checked)" style="width:auto"> Whole video</label>
         <input type="number" step="0.5" value="${t.start}" oninput="txSet(${i},'start',+this.value)" style="width:70px" placeholder="from s">
         <input type="number" step="0.5" value="${t.end}" oninput="txSet(${i},'end',+this.value)" style="width:70px" placeholder="to s">
         <button class="btn sm bad" onclick="rmTx(${i})">✕</button>
@@ -436,20 +547,123 @@ function renderTexts(){
 window.txSet=function(i,k,v){if(TEXTS[i])TEXTS[i][k]=v;};
 window.rmTx=function(i){TEXTS.splice(i,1);renderTexts();};
 
+/* ================= AUTO-CAPTIONS ================= */
+function setCapTxt(s){$('#capTxt').textContent=s;}
+function renderCaps(){
+  $('#capList').innerHTML=CAPS.map((c,i)=>`
+    <div class="cap">
+      <div class="t">${c.start.toFixed(1)}s →<br>${c.end.toFixed(1)}s</div>
+      <input value="${esc(c.text)}" oninput="capSet(${i},this.value)">
+      <button class="btn sm bad" onclick="rmCap(${i})">✕</button>
+    </div>`).join('');
+  $('#btnCapsClear').style.display=CAPS.length?'inline-block':'none';
+}
+window.capSet=function(i,v){if(CAPS[i])CAPS[i].text=v;};
+window.rmCap=function(i){CAPS.splice(i,1);renderCaps();};
+$('#btnCapsClear').onclick=()=>{CAPS=[];renderCaps();setCapTxt('Captions cleared.');};
+async function ensureASR(){
+  if(asrPipe)return asrPipe;
+  setCapTxt('Loading speech model… first time only, about 40MB. Please wait ⏳');
+  const T=await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
+  asrPipe=await T.pipeline('automatic-speech-recognition','Xenova/whisper-tiny');
+  return asrPipe;
+}
+async function getAudio(m){
+  if(m.audioBuf!==undefined)return m.audioBuf;
+  m.audioBuf=null;
+  try{
+    const ab=await m.blob.arrayBuffer();
+    const AC=new (window.AudioContext||window.webkitAudioContext)();
+    m.audioBuf=await AC.decodeAudioData(ab);
+    AC.close();
+  }catch(e){}
+  return m.audioBuf;
+}
+function to16k(buf,from,to){
+  const sr=buf.sampleRate, ch=buf.numberOfChannels;
+  const s=Math.max(0,Math.floor(from*sr)), e=Math.min(buf.length,Math.floor(to*sr));
+  if(e<=s)return new Float32Array(0);
+  const n=e-s, outLen=Math.floor(n*16000/sr), out=new Float32Array(outLen);
+  const d0=buf.getChannelData(0), d1=ch>1?buf.getChannelData(1):null;
+  for(let i=0;i<outLen;i++){
+    const si=s+i*sr/16000, i0=Math.floor(si), f=si-i0;
+    const a0=Math.min(s+i0,e-1), a1=Math.min(s+i0+1,e-1);
+    const v0=d1?(d0[a0]+d1[a0])/2:d0[a0];
+    const v1=d1?(d0[a1]+d1[a1])/2:d0[a1];
+    out[i]=v0+(v1-v0)*f;
+  }
+  return out;
+}
+$('#btnCaps').onclick=async()=>{
+  if(capBusy){toast('Already working on captions…');return;}
+  if(!CLIPS.length){toast('Add a video clip to the timeline first');return;}
+  capBusy=true;$('#btnCaps').disabled=true;CAPS=[];
+  try{
+    const pipe=await ensureASR();
+    let pos=0;
+    for(const c of CLIPS){
+      const m=mById(c.mediaId); const d=cDur(c);
+      if(!m||m.type!=='video'){pos+=d;continue;}
+      setCapTxt('Reading sound from '+m.name+'…');
+      const buf=await getAudio(m);
+      if(!buf){setCapTxt('No audio track found in '+m.name+', skipping.');pos+=d;continue;}
+      const ts=c.trimStart||0;
+      let te=c.trimEnd; if(!(te>ts))te=m.duration||buf.duration;
+      const data=to16k(buf,ts,Math.min(te,buf.duration));
+      if(!data.length){pos+=d;continue;}
+      const sp=c.speed||1;
+      const win=28*16000;
+      for(let off=0;off<data.length;off+=win){
+        const seg=data.subarray(off,Math.min(off+win,data.length));
+        setCapTxt('Transcribing '+m.name+'… '+Math.min(99,Math.round(off/data.length*100))+'% ⏳');
+        let out;
+        try{out=await pipe(seg,{return_timestamps:true});}catch(e){continue;}
+        const chunks=(out&&out.chunks)||[];
+        let last='';
+        for(const ch of chunks){
+          const txt=String(ch.text||'').trim();
+          if(!txt||txt===last)continue;
+          last=txt;
+          const a=(ch.timestamp&&ch.timestamp[0]!=null)?ch.timestamp[0]:null;
+          const b=(ch.timestamp&&ch.timestamp[1]!=null)?ch.timestamp[1]:null;
+          const st=a==null?pos:pos+((off/16000)+a)/sp;
+          const en=b==null?st+2:pos+((off/16000)+b)/sp;
+          CAPS.push({start:st,end:Math.max(st+.3,en),text:txt});
+        }
+        if(!chunks.length&&out&&out.text&&out.text.trim()&&out.text.trim()!==last)
+          CAPS.push({start:pos,end:pos+d,text:String(out.text).trim()});
+      }
+      pos+=d;
+    }
+    CAPS.sort((a,b)=>a.start-b.start);
+    renderCaps();
+    setCapTxt(CAPS.length?('✅ '+CAPS.length+' captions created. They appear on the video and in the export. Edit any word below.'):'No clear speech detected. Try a video with a strong voice.');
+    toast(CAPS.length?'Captions ready! 🗣️':'No speech found');
+  }catch(e){
+    setCapTxt('Caption failed: '+((e&&e.message)||e));
+    toast('Auto-caption failed on this device');
+  }finally{
+    capBusy=false;$('#btnCaps').disabled=false;
+  }
+};
+
 /* ================= STAGE DRAW ================= */
 function locate(t){let acc=0;for(let i=0;i<CLIPS.length;i++){const d=cDur(CLIPS[i]);if(t<acc+d)return{i,off:t-acc};acc+=d;}return CLIPS.length?{i:CLIPS.length-1,off:cDur(CLIPS[CLIPS.length-1])}:null;}
-function drawCover(ctx,src,mw,mh,rx,ry,rw,rh,rot,flipH,filter){
-  if(!src||!mw||!mh)return;
-  ctx.save();
-  ctx.beginPath();ctx.rect(rx,ry,rw,rh);ctx.clip();
-  if(filter&&filter!=='none')ctx.filter=filter;
+function drawMedia(ctx,m,rect,rot,flip,filter,fit){
+  const src=m.type==='video'?m.el:m.img;
+  const sw=m.type==='video'?m.el.videoWidth:m.img.naturalWidth;
+  const sh=m.type==='video'?m.el.videoHeight:m.img.naturalHeight;
+  if(!src||!sw||!sh)return;
   const swap=(rot===90||rot===270);
-  const tw=swap?rh:rw, th=swap?rw:rh;
-  const k=Math.max(tw/mw,th/mh);
-  const dw=mw*k, dh=mh*k;
-  ctx.translate(rx+rw/2,ry+rh/2);
+  const tw=swap?rect.h:rect.w, th=swap?rect.w:rect.h;
+  const k=(fit||'cover')==='cover'?Math.max(tw/sw,th/sh):Math.min(tw/sw,th/sh);
+  const dw=sw*k, dh=sh*k;
+  ctx.save();
+  ctx.beginPath();ctx.rect(rect.x,rect.y,rect.w,rect.h);ctx.clip();
+  if(filter&&filter!=='none')ctx.filter=filter;
+  ctx.translate(rect.x+rect.w/2,rect.y+rect.h/2);
   if(rot)ctx.rotate(rot*Math.PI/180);
-  ctx.scale(flipH?-1:1,1);
+  ctx.scale(flip?-1:1,1);
   ctx.drawImage(src,-dw/2,-dh/2,dw,dh);
   ctx.restore();
 }
@@ -464,28 +678,51 @@ function drawText(ctx,tx,W,H){
   ctx.fillStyle=tx.color;ctx.fillText(tx.text,X,Y);
   ctx.restore();
 }
+function wrapText(s,n){
+  const words=String(s).split(/\s+/), lines=[]; let cur='';
+  for(const w of words){
+    if((cur+' '+w).trim().length>n){lines.push(cur.trim());cur=w;}
+    else cur+=' '+w;
+  }
+  if(cur.trim())lines.push(cur.trim());
+  return lines.slice(0,2);
+}
+function drawCaption(ctx,t,W,H){
+  if(!$('#capsOn').checked)return;
+  const seg=CAPS.find(c=>t>=c.start&&t<=c.end);
+  if(!seg)return;
+  const px=Math.max(13,H*.048);
+  const lines=wrapText(seg.text,38);
+  ctx.save();
+  ctx.font='700 '+px+'px -apple-system,Segoe UI,Roboto,sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  const lh=px*1.35;
+  let maxw=0; lines.forEach(l=>{maxw=Math.max(maxw,ctx.measureText(l).width);});
+  const bw=maxw+px*.9, bh=lh*lines.length+px*.5;
+  const bx=W/2-bw/2, by=H-bh-H*.05;
+  ctx.fillStyle='rgba(0,0,0,.72)';
+  const r=px*.35;
+  ctx.beginPath();
+  ctx.moveTo(bx+r,by);ctx.arcTo(bx+bw,by,bx+bw,by+bh,r);ctx.arcTo(bx+bw,by+bh,bx,by+bh,r);ctx.arcTo(bx,by+bh,bx,by,r);ctx.arcTo(bx,by,bx+bw,by,r);ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle='#fff';
+  lines.forEach((l,i)=>ctx.fillText(l,W/2,by+px*.25+lh*i+lh/2-px*.05));
+  ctx.restore();
+}
 function drawComposite(ctx,t){
   const W=ctx.canvas.width,H=ctx.canvas.height;
   ctx.filter='none';
-  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
-  if(BASE){
-    const bm=mById(BASE);
-    if(bm){
-      if(bm.type==='video')drawCover(ctx,bm.el,bm.el.videoWidth,bm.el.videoHeight,0,0,W,H,0,false,'none');
-      else drawCover(ctx,bm.img,bm.img.naturalWidth,bm.img.naturalHeight,0,0,W,H,0,false,'none');
-    }
-  }
+  drawWall(ctx,W,H);
+  const br=baseRect(W,H);
+  const bm=BASE?mById(BASE):null;
+  if(bm)drawMedia(ctx,bm,br,0,false,'none','cover');
   const loc=locate(t);
+  const pr=pipRect(W,H,t);
   if(loc){
     const c=CLIPS[loc.i],m=mById(c.mediaId);
-    if(m){
-      let r={x:0,y:0,w:W,h:H};
-      if(BASE){const pw=PIP.w/100*W,ph=PIP.w/100*W*(9/16);
-        r={x:PIP.x/100*(W-pw),y:PIP.y/100*(H-ph),w:pw,h:ph};}
-      if(m.type==='video')drawCover(ctx,m.el,m.el.videoWidth,m.el.videoHeight,r.x,r.y,r.w,r.h,c.rot||0,c.flipH,c.filter);
-      else drawCover(ctx,m.img,m.img.naturalWidth,m.img.naturalHeight,r.x,r.y,r.w,r.h,c.rot||0,c.flipH,c.filter);
-    }
+    if(m)drawMedia(ctx,m,pr,c.rot||0,c.flipH,c.filter,c.fit);
   }
+  if(loc)drawCaption(ctx,t,W,H);
   for(const tx of TEXTS){
     if(tx.always||(t>=tx.start&&t<=tx.end))drawText(ctx,tx,W,H);
   }
@@ -547,41 +784,45 @@ $('#btnPlay').onclick=()=>{
   else{playing=false;pT=Math.min((performance.now()-pT0)/1000,DUR);pauseAll();$('#btnPlay').textContent='▶';}
 };
 
-/* pip drag on stage */
+/* pip drag on stage (float layout) */
 (function(){
   let drag=null;
   const pt=e=>{const r=stage.getBoundingClientRect();return{px:(e.clientX-r.left)/r.width*100,py:(e.clientY-r.top)/r.height*100};};
   stage.addEventListener('pointerdown',e=>{
-    if(!BASE||!CLIPS.length)return;
-    const r=stage.getBoundingClientRect();
-    const pw=PIP.w, ph=PIP.w*(9/16)*(r.height/r.width);
-    const cx=PIP.x/100*(100-pw)+pw/2, cy=PIP.y/100*(100-ph)+ph/2;
-    const d=Math.hypot(pt(e).px-((PIP.x/100*(100-pw))+pw),pt(e).py-(PIP.y/100*(100-ph)+ph));
-    const inBox=pt(e).px>=PIP.x/100*(100-pw)-2&&pt(e).px<=PIP.x/100*(100-pw)+pw+2&&pt(e).py>=PIP.y/100*(100-ph)-2&&pt(e).py<=PIP.y/100*(100-ph)+ph+2;
-    drag={mode:inBox?(d>pw*0.38?'size':'move'):null,sx:pt(e).px,sy:pt(e).py,ox:PIP.x,oy:PIP.y,ow:PIP.w};
+    if(LAYOUT!=='float'||!BASE||!CLIPS.length)return;
+    const r=pipRect(stage.width,stage.height,pT);
+    const ex=pt(e);
+    const inBox=ex.px>=r.x/stage.width*100-1&&ex.px<=(r.x+r.w)/stage.width*100+1&&ex.py>=r.y/stage.height*100-1&&ex.py<=(r.y+r.h)/stage.height*100+1;
+    const nearCorner=Math.hypot(ex.px-(r.x+r.w)/stage.width*100,ex.py-(r.y+r.h)/stage.height*100)<7;
+    drag={mode:nearCorner?'size':(inBox?'move':null),sx:ex.px,sy:ex.py,ow:PIP.w,ox:PIP.x,oy:PIP.y};
     stage.setPointerCapture(e.pointerId);
   });
   stage.addEventListener('pointermove',e=>{
     if(!drag||!drag.mode)return;
     const p=pt(e);
-    if(drag.mode==='move'){PIP.x=Math.min(100,Math.max(0,drag.ox+(p.px-drag.sx)));PIP.y=Math.min(100,Math.max(0,drag.oy+(p.py-drag.sy)));}
-    else{PIP.w=Math.min(100,Math.max(10,drag.ow+(p.px-drag.sx)));}
+    if(drag.mode==='move'){
+      PIP.x=Math.min(100,Math.max(0,drag.ox+(p.px-drag.sx)));
+      PIP.y=Math.min(100,Math.max(0,drag.oy+(p.py-drag.sy)));
+    }else{
+      PIP.w=Math.min(100,Math.max(10,drag.ow+(p.px-drag.sx)));
+    }
     syncPip();
   });
   stage.addEventListener('pointerup',()=>drag=null);
 })();
 
-/* ================= BACKGROUND SOUND ================= */
-let BASEVOL=100;
-$('#baseVol').oninput=e=>BASEVOL=+e.target.value;
-
-/* ================= EMOJI STICKERS ================= */
-const EMOJI=['🔥','😂','😱','💯','😍','🤯','✨','🎉','👉','🙏','❤️','👀','🤣','🚀','💰','😅'];
-$('#emojiRow').innerHTML=EMOJI.map(e=>`<button class="btn sm" style="font-size:1.15rem" onclick="addEmoji('${e}')">${e}</button>`).join('');
-window.addEmoji=e=>{TEXTS.push({text:e,color:'#ffffff',size:14,x:50,y:18,always:true,start:0,end:5});renderTexts();toast('Sticker added');};
-
-/* ================= VOICEOVER ================= */
-let VOICE=null, voRec=null, voChunks=[];
+/* ================= MUSIC / VOICEOVER ================= */
+$('#btnMusic').onclick=()=>$('#musicIn').click();
+$('#musicIn').onchange=e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const el=new Audio(URL.createObjectURL(f)); el.loop=true; el.preload='auto';
+  MUSIC={el,name:f.name};
+  $('#musicName').textContent='🎵 '+f.name;
+  $('#btnMusicClear').style.display='inline-block';
+  $('#musicVolRow').style.display='grid';
+  e.target.value='';
+};
+$('#btnMusicClear').onclick=()=>{MUSIC=null;$('#musicName').textContent='No music added.';$('#btnMusicClear').style.display='none';$('#musicVolRow').style.display='none';};
 $('#btnVO').onclick=async()=>{
   if(voRec){voRec.stop();return;}
   try{
@@ -592,7 +833,7 @@ $('#btnVO').onclick=async()=>{
       str.getTracks().forEach(t=>t.stop());
       const b=new Blob(voChunks,{type:'audio/webm'});
       const el=new Audio(URL.createObjectURL(b)); el.preload='auto';
-      VOICE={el,name:'Recorded voiceover'};
+      VOICE={el};
       $('#voName').textContent='🎙 Voiceover recorded ✓';
       $('#btnVOClear').style.display='inline-block';
       $('#voVolRow').style.display='grid';
@@ -608,29 +849,13 @@ $('#btnVOFile').onclick=()=>$('#voIn').click();
 $('#voIn').onchange=e=>{
   const f=e.target.files[0]; if(!f)return;
   const el=new Audio(URL.createObjectURL(f)); el.preload='auto';
-  VOICE={el,name:f.name};
+  VOICE={el};
   $('#voName').textContent='🎙 '+f.name;
   $('#btnVOClear').style.display='inline-block';
   $('#voVolRow').style.display='grid';
   e.target.value='';
 };
 $('#btnVOClear').onclick=()=>{VOICE=null;$('#voName').textContent='No voiceover yet. Tap Record, talk, tap again to stop.';$('#btnVOClear').style.display='none';$('#voVolRow').style.display='none';};
-
-/* ================= MUSIC ================= */
-$('#btnMusic').onclick=()=>$('#musicIn').click();
-$('#musicIn').onchange=e=>{
-  const f=e.target.files[0]; if(!f)return;
-  const url=URL.createObjectURL(f);
-  const el=new Audio(url); el.loop=true;
-  MUSIC={name:f.name,el,url};
-  $('#musicName').textContent='🎵 '+f.name;
-  $('#btnMusicClear').style.display='inline-block';
-  $('#musicVolRow').style.display='grid';
-  e.target.value='';
-};
-$('#btnMusicClear').onclick=()=>{MUSIC=null;$('#musicName').textContent='No music added.';$('#btnMusicClear').style.display='none';$('#musicVolRow').style.display='none';};
-$('#musicVol').oninput=()=>{};
-
 
 /* ================= EXPORT ================= */
 $('#resSel').onchange=e=>{
@@ -658,16 +883,14 @@ async function doExport(){
     exportCanvas.width=W;exportCanvas.height=H;
     const stream=exportCanvas.captureStream(30);
     const AC=new (window.AudioContext||window.webkitAudioContext)();
-    AUDIO_CTXS.push(AC);
     const dest=AC.createMediaStreamDestination();
     const master=AC.createGain();master.gain.value=1;
     master.connect(dest);master.connect(AC.destination);
-    const GAINS=new Map();
     function elGain(el,vol){
-      let src=AUDIO_NODES.get(el);
-      if(!src){src=AC.createMediaElementSource(el);AUDIO_NODES.set(el,src);}
-      let g=GAINS.get(el);
-      if(!g){g=AC.createGain();try{src.disconnect();}catch(e){}src.connect(g);g.connect(master);GAINS.set(el,g);}
+      let src=AUDIO_NODES_MAP.get(el);
+      if(!src){src=AC.createMediaElementSource(el);AUDIO_NODES_MAP.set(el,src);}
+      let g=GAIN_PER_EL.get(el);
+      if(!g){g=AC.createGain();try{src.disconnect();}catch(e){}src.connect(g);g.connect(master);GAIN_PER_EL.set(el,g);}
       if(vol!=null)g.gain.value=vol;
       return g;
     }
@@ -701,7 +924,7 @@ async function doExport(){
       let t=(performance.now()-t0)/1000;
       if(t>=DUR){t=DUR;stopped=true;}
       const loc=locate(t);
-      if(loc){const acm=mById(CLIPS[loc.i].mediaId);if(acm&&acm.type==='video'){const ag=GAINS.get(acm.el);if(ag)ag.gain.value=(CLIPS[loc.i].vol==null?100:CLIPS[loc.i].vol)/100;}}
+      if(loc){const acm=mById(CLIPS[loc.i].mediaId);if(acm&&acm.type==='video'){const ag=GAIN_PER_EL.get(acm.el);if(ag)ag.gain.value=(CLIPS[loc.i].vol==null?100:CLIPS[loc.i].vol)/100;}}
       if(loc&&exIdx!==loc.i){
         if(exIdx>=0){const p=mById(CLIPS[exIdx].mediaId);if(p&&p.type==='video')p.el.pause();}
         exIdx=loc.i;
@@ -758,7 +981,7 @@ window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;
 $('#btnInstall').onclick=async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;$('#btnInstall').style.display='none';};
 if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
 
-renderBin();renderClips();renderTexts();renderBase();updateDUR();
+renderBin();renderClips();renderTexts();renderBase();renderWalls();renderLayout();updateDUR();
 requestAnimationFrame(tick);
 </script>
 </body>
