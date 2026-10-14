@@ -1357,7 +1357,10 @@ function demoSamples(){
   if(vids.length<2){addMedia(b64File(DEMO_A,'demo-video-1.mp4','video/mp4'));addMedia(b64File(DEMO_B,'demo-video-2.mp4','video/mp4'));}
   return MEDIA.filter(m=>m.type==='video').slice(0,2);
 }
-let T_PAUSE=false,TOKEN=0,T_STEPS=11,T_STEP=1;
+let T_PAUSE=false,TOKEN=0,T_STEPS=11,T_STEP=1,T_ACTIVE=false,WL=null;
+async function wlGet(){try{if('wakeLock' in navigator){WL=await navigator.wakeLock.request('screen');WL.addEventListener('release',()=>{WL=null;});}}catch(e){}}
+function wlRel(){try{if(WL){WL.release();}}catch(e){}WL=null;}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&T_ACTIVE)wlGet();});
 function tShow(on){$('#tourPtr').style.display=on?'block':'none';$('#tourCap').style.display=on?'block':'none';$('#tourRec').style.display=on?'flex':'none';$('#tourBar').style.display=on?'flex':'none';}
 function tSay(m){$('#tourCap').textContent=m;}
 function tStep(n){T_STEP=n;$('#tourStep').textContent='Step '+n+' / '+T_STEPS;}
@@ -1396,14 +1399,15 @@ async function tPoint(sel,tok,ms){
   await new Promise(r=>setTimeout(r,ms||900));
   return tok===TOKEN;
 }
-function tEnd(){TOKEN++;T_PAUSE=false;tShow(false);playing=false;pauseAll();}
+function tEnd(){TOKEN++;T_PAUSE=false;T_ACTIVE=false;wlRel();tShow(false);playing=false;pauseAll();}
 function startTour(){
   localStorage.setItem('nc_demo_seen','1');$('#featDemo').classList.add('seen');
   runTour();
 }
 async function runTour(){
-  const tok=++TOKEN;T_PAUSE=false;$('#tourPlay').textContent='⏸';
+  const tok=++TOKEN;T_PAUSE=false;T_ACTIVE=true;$('#tourPlay').textContent='⏸';
   tShow(true);
+  wlGet(); // keep the phone screen awake while the demo plays
   const ptr=$('#tourPtr');ptr.style.left=(innerWidth/2)+'px';ptr.style.top=(innerHeight/2+40)+'px';
 
   // STEP 1 — welcome
