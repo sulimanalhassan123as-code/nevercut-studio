@@ -93,6 +93,11 @@ input[type=color]{padding:2px;height:42px;}
 .toast.on{opacity:1;}
 .badge{display:inline-block;background:#0f2733;color:var(--acc);border-radius:999px;padding:2px 9px;font-size:.66rem;font-weight:800;letter-spacing:.5px;}
 hr.sep{border:none;border-top:1px solid var(--line);margin:12px 0;}
+.featgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.feat{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px 12px;text-align:left;color:var(--txt);cursor:pointer;display:flex;flex-direction:column;gap:5px;font-size:.85rem;}
+.feat:active{transform:scale(.97);}
+.feat .fic{font-size:1.5rem;}
+.feat b{font-size:.9rem;}
 details summary{outline:none;}
 </style>
 </head>
@@ -119,8 +124,101 @@ details summary{outline:none;}
     <div class="mut" id="pipHint" style="margin-top:8px;display:none">Drag on the preview to move the floating video. Drag its bottom-right corner to resize.</div>
   </div>
 
+  <!-- FEATURES HOME -->
+  <div class="panel on" id="p-home">
+    <div class="card">
+      <h2><span class="dot"></span>WHAT DO YOU WANT TO MAKE TODAY?</h2>
+      <div class="featgrid">
+        <button class="feat" onclick="switchTab('duet')">
+          <span class="fic">📷</span><b>Camera Duet</b>
+          <span class="mut">Watch a video &amp; record yourself on the same screen — saved as ONE video. Split screen, one big one small.</span>
+        </button>
+        <button class="feat" onclick="switchTab('media')">
+          <span class="fic">🎞️</span><b>Pro Editor</b>
+          <span class="mut">Merge clips, trim, speed, filters, fades — full editor.</span>
+        </button>
+        <button class="feat" onclick="switchTab('layer')">
+          <span class="fic">🖼️</span><b>Split Screen &amp; Wallpapers</b>
+          <span class="mut">Two videos on one screen: floating, split, stacked. Color wallpapers behind.</span>
+        </button>
+        <button class="feat" onclick="switchTab('text')">
+          <span class="fic">🗣️</span><b>Auto-Captions</b>
+          <span class="mut">The app writes the spoken words on the video by itself.</span>
+        </button>
+        <button class="feat" onclick="switchTab('clip')">
+          <span class="fic">➕</span><b>Timeline / Merging</b>
+          <span class="mut">Put many clips in order, they play as one video.</span>
+        </button>
+        <button class="feat" onclick="switchTab('export')">
+          <span class="fic">🎵</span><b>Music, Voice &amp; Export</b>
+          <span class="mut">Background music, record your voice, save MP4.</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAMERA DUET -->
+  <div class="panel" id="p-duet">
+    <div class="card">
+      <h2><span class="dot"></span>📷 CAMERA DUET — SPLIT SCREEN</h2>
+      <div class="mut">Pick a video, record yourself watching it, and get ONE video with both of you playing together — side by side or one big, one small.</div>
+      <button class="btn sm" onclick="switchTab('home')" style="margin-top:10px">← Back to Features</button>
+    </div>
+    <div class="card" id="duetSetup">
+      <div class="mut" style="margin-bottom:8px;font-weight:700">1. Choose the video you were watching:</div>
+      <div id="duetVids" class="tagrow"><span class="mut">Import a video first in the Pro Editor.</span></div>
+      <div class="mut" style="margin:14px 0 8px;font-weight:700">2. Choose the split:</div>
+      <div class="lay">
+        <button class="btn on" data-dlay="side">◫ Side by side</button>
+        <button class="btn" data-dlay="stack">▤ Top / Bottom</button>
+        <button class="btn" data-dlay="bigV">🎬 Big video<br>+ small you</button>
+        <button class="btn" data-dlay="bigMe">🤳 Big you<br>+ small video</button>
+      </div>
+      <div class="mut" style="margin:14px 0 8px;font-weight:700">3. The other side of the screen:</div>
+      <div class="row wrap">
+        <button class="btn pri grow" id="duetCamBtn">📷 Record with my camera</button>
+        <button class="btn grow" id="duetVidBtn">📼 Use another video</button>
+      </div>
+      <div id="duetV2Row" class="tagrow" style="display:none"></div>
+      <div class="row" style="margin-top:12px">
+        <label class="mut" style="font-size:.78rem;display:flex;gap:6px;align-items:center"><input type="checkbox" id="duetFront" checked style="width:auto"> Front camera</label>
+      </div>
+      <div class="fld" style="margin-top:10px">
+        <label>Format</label>
+        <select id="duetRes">
+          <option value="1280x720" selected>Wide 720p (YouTube)</option>
+          <option value="720x1280">Vertical (TikTok / Reels)</option>
+          <option value="1080x1080">Square (Instagram)</option>
+        </select>
+        <label>Video vol</label><input type="range" id="duetVolA" min="0" max="100" value="100">
+        <label>Your vol</label><input type="range" id="duetVolB" min="0" max="100" value="100">
+      </div>
+      <button class="btn gold" id="duetGo" style="width:100%;margin-top:12px;font-size:1rem;padding:14px;display:none">● START RECORDING</button>
+    </div>
+    <div class="card" id="duetRec" style="display:none">
+      <canvas id="duetStage" width="1280" height="720" style="width:100%;border-radius:12px;background:#000"></canvas>
+      <div class="row" style="margin-top:10px">
+        <div class="pill" id="duetTimer">0:00</div>
+        <div class="mut grow" style="text-align:center">🔴 Recording YOU + the video together. Talk, react, dance — then stop &amp; save.</div>
+        <button class="btn bad" id="duetStop">⏹ STOP &amp; SAVE</button>
+      </div>
+    </div>
+    <div class="card" id="duetProg" style="display:none">
+      <h2><span class="dot"></span>SAVING YOUR DUET…</h2>
+      <div class="prog"><div id="duetProgBar"></div></div>
+      <div class="mut" id="duetProgTxt" style="margin-top:6px">Composing you and the video into one file… keep this screen open.</div>
+    </div>
+    <div class="card" id="duetDone" style="display:none">
+      <h2><span class="dot"></span>DONE ✅</h2>
+      <video id="duetResult" controls playsinline style="width:100%;border-radius:12px;background:#000"></video>
+      <div class="mut" id="duetMeta" style="margin:8px 0"></div>
+      <a class="btn pri" id="duetSave" style="display:block;text-align:center;text-decoration:none">⬇ SAVE TO PHONE</a>
+      <button class="btn sm" onclick="duetAgain()" style="margin-top:10px">↻ Record another duet</button>
+    </div>
+  </div>
+
   <!-- MEDIA -->
-  <div class="panel on" id="p-media">
+  <div class="panel" id="p-media">
     <div class="card">
       <details>
         <summary style="font-weight:800;font-size:.9rem;cursor:pointer">❔ How to edit your video — 4 easy steps</summary>
@@ -290,7 +388,8 @@ details summary{outline:none;}
 </div>
 
 <nav class="tabs">
-  <button class="tab on" data-p="media"><span class="ic">📁</span>Media</button>
+  <button class="tab on" data-p="home"><span class="ic">🏠</span>Features</button>
+  <button class="tab" data-p="media"><span class="ic">📁</span>Media</button>
   <button class="tab" data-p="clip"><span class="ic">🎞️</span>Timeline</button>
   <button class="tab" data-p="layer"><span class="ic">🖼️</span>Layers</button>
   <button class="tab" data-p="text"><span class="ic">🔤</span>Text</button>
@@ -856,6 +955,179 @@ $('#voIn').onchange=e=>{
   e.target.value='';
 };
 $('#btnVOClear').onclick=()=>{VOICE=null;$('#voName').textContent='No voiceover yet. Tap Record, talk, tap again to stop.';$('#btnVOClear').style.display='none';$('#voVolRow').style.display='none';};
+
+/* ================= CAMERA DUET ================= */
+const duet={A:null,B:null,mode:null,layout:'side'};
+let duetCamStream=null,duetCamRec=null,duetCamChunks=[],duetCamBlob=null,duetCamLive=null,duetSrcA=null,duetT0=0,duetRecLen=0,duetLiveRAF=null;
+function duetRects(W,H){
+  const L=duet.layout;
+  if(L==='side')return[{x:0,y:0,w:W/2,h:H},{x:W/2,y:0,w:W/2,h:H}];
+  if(L==='stack')return[{x:0,y:0,w:W,h:H/2},{x:0,y:H/2,w:W,h:H/2}];
+  if(L==='bigV')return[{x:0,y:0,w:W*.66,h:H},{x:W*.66,y:0,w:W*.34,h:H}];
+  return[{x:W*.34,y:0,w:W*.66,h:H},{x:0,y:0,w:W*.34,h:H}];
+}
+function drawEl(ctx,el,rect,mirror){
+  if(!el)return;
+  const sw=el.videoWidth||el.naturalWidth||rect.w, sh=el.videoHeight||el.naturalHeight||rect.h;
+  if(!sw||!sh)return;
+  const k=Math.max(rect.w/sw,rect.h/sh), dw=sw*k, dh=sh*k;
+  ctx.save();
+  ctx.beginPath();ctx.rect(rect.x,rect.y,rect.w,rect.h);ctx.clip();
+  ctx.translate(rect.x+rect.w/2,rect.y+rect.h/2);
+  if(mirror)ctx.scale(-1,1);
+  try{ctx.drawImage(el,-dw/2,-dh/2,dw,dh);}catch(e){}
+  ctx.restore();
+}
+function duetRefresh(){
+  const vids=MEDIA.filter(m=>m.type==='video');
+  $('#duetVids').innerHTML=vids.length?vids.map(m=>`<button class="btn sm ${duet.A===m.id?'pri':''}" onclick="duetPickA('${m.id}')">${esc(m.name)}</button>`).join(''):'<span class="mut">Import a video first (Features → Pro Editor).</span>';
+  const v2s=MEDIA.filter(m=>m.type==='video'&&m.id!==duet.A);
+  $('#duetV2Row').innerHTML=v2s.map(m=>`<button class="btn sm ${duet.B===m.id?'pri':''}" onclick="duetPickB('${m.id}')">${esc(m.name)}</button>`).join('');
+  document.querySelectorAll('[data-dlay]').forEach(b=>b.classList.toggle('on',b.dataset.dlay===duet.layout));
+  const ready=duet.A&&(duet.mode==='camera'||(duet.mode==='video'&&duet.B));
+  $('#duetGo').style.display=ready?'block':'none';
+  $('#duetGo').textContent=duet.mode==='camera'?'● START RECORDING':'🎬 MERGE THE TWO VIDEOS NOW';
+}
+window.duetPickA=function(id){duet.A=id;duet.B=(duet.B===id)?null:duet.B;duetRefresh();};
+window.duetPickB=function(id){duet.B=id;duet.mode='video';duetRefresh();};
+document.querySelectorAll('[data-dlay]').forEach(b=>b.onclick=()=>{duet.layout=b.dataset.dlay;duetRefresh();});
+$('#duetCamBtn').onclick=()=>{duet.mode='camera';$('#duetV2Row').style.display='none';duetRefresh();};
+$('#duetVidBtn').onclick=()=>{duet.mode='video';$('#duetV2Row').style.display='flex';duetRefresh();};
+function freshVid(m){const el=document.createElement('video');el.src=URL.createObjectURL(m.blob);el.playsInline=true;el.preload='auto';return el;}
+function canplay(el){return new Promise(r=>{if(!el)return r();if(el.readyState>=3||el.readyState===0&&el.src)return el.readyState>=3?r():(el.oncanplay=r,setTimeout(r,6000));r();});}
+async function forcePlay(el){
+  if(!el)return;
+  for(let i=0;i<3;i++){try{await el.play();return;}catch(e){}await new Promise(r=>setTimeout(r,350));}
+  try{el.muted=true;await el.play();}catch(e){}
+}
+$('#duetGo').onclick=async()=>{
+  const mA=mById(duet.A); if(!mA||mA.type!=='video')return toast('Choose a video first');
+  duetSrcA=freshVid(mA);
+  await new Promise(r=>{duetSrcA.onloadedmetadata=r;setTimeout(r,4000);});
+  if(duet.mode==='camera'){await duetStartCam();}
+  else{const mB=mById(duet.B);if(!mB)return toast('Choose the second video');duetRecLen=0;duetCompose(null,mB);}
+};
+async function duetStartCam(){
+  try{
+    duetCamStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:$('#duetFront').checked?'user':'environment'},audio:true});
+  }catch(e){toast('Camera / microphone not available. Use 📼 another video instead.');return;}
+  duetCamLive=document.createElement('video');
+  duetCamLive.srcObject=duetCamStream;duetCamLive.muted=true;duetCamLive.playsInline=true;
+  await duetCamLive.play().catch(()=>{});
+  const mime=['video/webm;codecs=vp8,opus','video/webm','video/mp4'].find(t=>MediaRecorder.isTypeSupported(t));
+  duetCamChunks=[];duetCamRec=new MediaRecorder(duetCamStream,mime?{mimeType:mime}:{});
+  duetCamRec.ondataavailable=e=>{if(e.data.size)duetCamChunks.push(e.data);};
+  duetCamRec.start(500);
+  $('#duetSetup').style.display='none';$('#duetRec').style.display='block';$('#duetDone').style.display='none';
+  duetSrcA.currentTime=0;duetSrcA.muted=false;duetSrcA.loop=true;duetSrcA.play().catch(()=>{});
+  const cv=$('#duetStage');const [w,h]=$('#duetRes').value.split('x');cv.width=+w;cv.height=+h;
+  const cx=cv.getContext('2d');
+  duetT0=performance.now();
+  (function live(){
+    if(!duetCamStream){return;}
+    const t=(performance.now()-duetT0)/1000;
+    const rects=duetRects(cv.width,cv.height);
+    cx.fillStyle='#000';cx.fillRect(0,0,cv.width,cv.height);
+    drawEl(cx,duetSrcA,rects[0],false);
+    drawEl(cx,duetCamLive,rects[1],$('#duetFront').checked);
+    $('#duetTimer').textContent='🔴 '+fmt(t);
+    duetLiveRAF=requestAnimationFrame(live);
+  })();
+}
+$('#duetStop').onclick=()=>{
+  if(!duetCamRec)return;
+  duetRecLen=(performance.now()-duetT0)/1000;
+  duetCamRec.onstop=()=>{
+    duetCamBlob=new Blob(duetCamChunks,{type:(duetCamRec.mimeType||'video/webm').split(';')[0]});
+    duetCamStream.getTracks().forEach(t=>t.stop());duetCamStream=null;
+    duetSrcA.pause();
+    duetCompose(duetCamBlob,null);
+  };
+  try{duetCamRec.stop();}catch(e){}
+  $('#duetRec').style.display='none';
+  $('#duetProg').style.display='block';
+};
+async function duetCompose(camBlob,mB){
+  $('#duetSetup').style.display='none';$('#duetRec').style.display='none';
+  $('#duetProg').style.display='block';$('#duetProgBar').style.width='0%';
+  try{
+    const [w,h]=$('#duetRes').value.split('x');
+    const W=+w,H=+h;
+    const cv=document.createElement('canvas');cv.width=W;cv.height=H;
+    const cx=cv.getContext('2d');
+    let elB=null;
+    if(camBlob){
+      elB=document.createElement('video');elB.src=URL.createObjectURL(camBlob);elB.playsInline=true;elB.preload='auto';
+    }else{
+      elB=freshVid(mB);
+    }
+    await new Promise(r=>{elB.onloadedmetadata=r;setTimeout(r,5000);});
+    await canplay(elB);
+    const dA=duetSrcA.duration||0;
+    const dB=camBlob?duetRecLen:(elB.duration||0);
+    const total=camBlob?Math.max(duetRecLen,0.5):Math.max(dA,dB,0.5);
+    const stream=cv.captureStream(30);
+    const AC=new (window.AudioContext||window.webkitAudioContext)();
+    const dest=AC.createMediaStreamDestination();
+    function hook(el,vol){
+      if(!el)return null;
+      try{const src=AC.createMediaElementSource(el);const g=AC.createGain();g.gain.value=vol/100;src.connect(g);g.connect(dest);return g;}catch(e){return null;}
+    }
+    const gA=hook(duetSrcA,+$('#duetVolA').value);
+    const gB=hook(elB,+$('#duetVolB').value);
+    const at=dest.stream.getAudioTracks()[0];if(at)stream.addTrack(at);
+    const mime=['video/mp4;codecs=avc1','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].find(t=>MediaRecorder.isTypeSupported(t))||'';
+    const rec=new MediaRecorder(stream,Object.assign({videoBitsPerSecond:6000000,audioBitsPerSecond:128000},mime?{mimeType:mime}:{}));
+    const chunks=[];rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
+    const done=new Promise(r=>rec.onstop=r);
+    await AC.resume().catch(()=>{});
+    duetSrcA.muted=false;duetSrcA.loop=false;
+    elB.muted=false;
+    duetSrcA.currentTime=0;elB.currentTime=0;
+    await Promise.race([Promise.all([forcePlay(duetSrcA),forcePlay(elB)]),new Promise(r=>setTimeout(r,2500))]);
+    duetSrcA.currentTime=0;elB.currentTime=0;
+    await new Promise(r=>setTimeout(r,250));
+    duetSrcA.currentTime=0;elB.currentTime=0;
+    rec.start(500);
+    const t0=performance.now();
+    let stopped=false;
+    (function frame(){
+      let t=(performance.now()-t0)/1000;
+      if(t>=total){t=total;stopped=true;}
+      if(duetSrcA.paused&&!duetSrcA.ended)forcePlay(duetSrcA);
+      if(elB.paused&&!elB.ended)forcePlay(elB);
+      if(duetSrcA.ended&&gA)gA.gain.value=0;
+      if(elB.ended&&gB)gB.gain.value=0;
+      const rects=duetRects(W,H);
+      cx.fillStyle='#000';cx.fillRect(0,0,W,H);
+      drawEl(cx,duetSrcA,rects[0],false);
+      drawEl(cx,elB,rects[1],camBlob?$('#duetFront').checked:false);
+      $('#duetProgBar').style.width=(t/total*100)+'%';
+      $('#duetProgTxt').textContent='Composing… '+Math.round(t/total*100)+'% — keep this screen open';
+      if(stopped){setTimeout(()=>{if(rec.state!=='inactive')rec.stop();},350);return;}
+      requestAnimationFrame(frame);
+    })();
+    await done;
+    duetSrcA.pause();elB.pause();
+    const type=(rec.mimeType||mime||'video/webm').split(';')[0];
+    const blob=new Blob(chunks,{type});
+    const url=URL.createObjectURL(blob);
+    const ext=type.indexOf('mp4')>=0?'mp4':'webm';
+    $('#duetResult').src=url;
+    $('#duetMeta').textContent=fmt(total)+' • '+(blob.size/1048576).toFixed(1)+'MB • '+type.split('/')[1].toUpperCase()+' • '+W+'×'+H+' • no watermark';
+    const a=$('#duetSave');a.href=url;a.download='nevercut-duet-'+Date.now()+'.'+ext;
+    $('#duetProg').style.display='none';$('#duetDone').style.display='block';
+    toast('Duet saved ✅');
+  }catch(e){
+    $('#duetProg').style.display='none';$('#duetSetup').style.display='block';
+    toast('Duet failed: '+(e&&e.message?e.message:'unknown'));
+  }
+}
+window.duetAgain=function(){
+  $('#duetDone').style.display='none';$('#duetSetup').style.display='block';
+  duetCamBlob=null;duetRefresh();
+};
+(function(){const oldRender=renderBin;renderBin=function(){oldRender();duetRefresh();};})(); 
 
 /* ================= EXPORT ================= */
 $('#resSel').onchange=e=>{
