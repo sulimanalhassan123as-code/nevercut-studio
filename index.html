@@ -82,6 +82,7 @@ input[type=color]{padding:2px;height:42px;}
 #result video{width:100%;border-radius:12px;background:#000;margin-top:10px;}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#0f172a;border:1px solid var(--line);color:var(--txt);padding:10px 18px;border-radius:999px;font-size:.85rem;z-index:99;opacity:0;transition:opacity .3s;pointer-events:none;max-width:86vw;text-align:center;}
 .toast.on{opacity:1;}
+.details summary{outline:none}
 .badge{display:inline-block;background:#0f2733;color:var(--acc);border-radius:999px;padding:2px 9px;font-size:.66rem;font-weight:800;letter-spacing:.5px;}
 hr.sep{border:none;border-top:1px solid var(--line);margin:12px 0;}
 </style>
@@ -111,6 +112,17 @@ hr.sep{border:none;border-top:1px solid var(--line);margin:12px 0;}
 
   <!-- MEDIA -->
   <div class="panel on" id="p-media">
+    <div class="card">
+      <details>
+        <summary style="font-weight:800;font-size:.9rem;cursor:pointer">❔ How to edit your video — 4 easy steps</summary>
+        <div class="mut" style="margin-top:10px;line-height:1.8">
+          <b>1.</b> Import your videos and photos from your phone.<br>
+          <b>2.</b> Tap <b>＋ Clip</b> on each one, in the order you want them to play. In <b>Timeline</b> you can trim, change speed, add filters and fades.<br>
+          <b>3.</b> Reaction video: in <b>Layers</b>, tap <b>🖼 Base</b> on the video or photo you want BELOW, then your timeline clip floats on top — drag it on the preview to position it.<br>
+          <b>4.</b> Add captions or emoji in <b>Text</b>, record your voice in <b>Export</b>, tap EXPORT VIDEO, then SAVE TO PHONE. No watermark, ever.
+        </div>
+      </details>
+    </div>
     <div class="card">
       <h2><span class="dot"></span>MEDIA LIBRARY</h2>
       <div class="row" style="margin-bottom:10px">
@@ -150,6 +162,9 @@ hr.sep{border:none;border-top:1px solid var(--line);margin:12px 0;}
         <label>Position X</label><input type="range" id="pipX" min="0" max="100" value="50">
         <label>Position Y</label><input type="range" id="pipY" min="0" max="100" value="50">
       </div>
+      <div class="fld" id="baseVolRow" style="display:none">
+        <label>BG sound</label><input type="range" id="baseVol" min="0" max="100" value="100">
+      </div>
       <div class="tagrow">
         <button class="btn sm" data-preset="tl">↖ Top left</button>
         <button class="btn sm" data-preset="tr">↗ Top right</button>
@@ -163,7 +178,8 @@ hr.sep{border:none;border-top:1px solid var(--line);margin:12px 0;}
   <!-- TEXT -->
   <div class="panel" id="p-text">
     <div class="card">
-      <h2><span class="dot"></span>TEXT ON VIDEO</h2>
+      <h2><span class="dot"></span>TEXT &amp; EMOJI STICKERS</h2>
+      <div id="emojiRow" class="tagrow" style="margin-bottom:10px"></div>
       <button class="btn pri" id="btnAddText" style="width:100%">＋ Add Text Layer</button>
       <div id="texts"></div>
       <div id="textsEmpty" class="empty">No text layers. Add titles, captions, names, anything.</div>
@@ -200,9 +216,22 @@ hr.sep{border:none;border-top:1px solid var(--line);margin:12px 0;}
         <label>Music vol</label><input type="range" id="musicVol" min="0" max="100" value="60">
       </div>
       <hr class="sep">
+      <h2><span class="dot"></span>VOICEOVER — RECORD YOUR VOICE</h2>
+      <div class="row">
+        <button class="btn grow" id="btnVO">🎙 Record</button>
+        <button class="btn sm" id="btnVOFile">📁 File</button>
+        <button class="btn sm bad" id="btnVOClear" style="display:none">✕</button>
+      </div>
+      <input type="file" id="voIn" accept="audio/*" style="display:none">
+      <div class="mut" id="voName" style="margin-top:6px">No voiceover yet. Tap Record, talk, tap again to stop. It plays over your whole video.</div>
+      <div class="fld" id="voVolRow" style="display:none">
+        <label>Voice vol</label><input type="range" id="voVol" min="0" max="100" value="80">
+      </div>
+      <hr class="sep">
       <button class="btn gold" id="btnExport" style="width:100%;font-size:1rem;padding:14px">🎬 EXPORT VIDEO</button>
       <div class="prog"><div id="prog"></div></div>
       <div class="mut" id="progTxt" style="margin-top:6px">The export records the movie in real time. Keep this screen open until it finishes.</div>
+      <div class="mut" style="margin-top:6px">Exports are clean — no watermark, no logo, ready to post on TikTok, Reels, WhatsApp or YouTube.</div>
       <div id="result">
         <hr class="sep">
         <h2><span class="dot"></span>DONE ✅</h2>
@@ -235,7 +264,7 @@ const MEDIA=[], CLIPS=[], TEXTS=[];
 const AUDIO_CTXS=[]; const AUDIO_NODES=new WeakMap();
 let BASE=null;
 const PIP={x:50,y:50,w:44};
-let MUSIC=null, MUSIC_GAIN=null;
+let MUSIC=null;
 let DUR=0, RES={w:1280,h:720}, VBIT=6000000;
 let playing=false, pT=0, pT0=0, EXPORTING=false;
 let curIdx=-1;
@@ -341,6 +370,9 @@ function renderClips(){
         <label>Trim end</label><input type="number" step="0.1" min="0" value="${+(c.trimEnd||0).toFixed(2)}" oninput="clipSet(${i},'trimEnd',+this.value)">
         <label>Speed</label><select onchange="clipSet(${i},'speed',+this.value)">${SPEEDS.map(s=>`<option value="${s}" ${s===(c.speed||1)?'selected':''}>${s}×</option>`).join('')}</select>
         <label>Filter</label><select onchange="clipSet(${i},'filter',this.value)">${Object.keys(FILTERS).map(k=>`<option value="${esc(k)}" ${k===c.filter?'selected':''}>${FILTERS[k]}</option>`).join('')}</select>
+        <label>Volume</label><input type="range" min="0" max="100" value="${c.vol==null?100:c.vol}" oninput="clipSet(${i},'vol',+this.value)">
+        <label>Fade in s</label><input type="number" step="0.25" min="0" max="3" value="${c.fadeIn||0}" oninput="clipSet(${i},'fadeIn',+this.value)">
+        <label>Fade out s</label><input type="number" step="0.25" min="0" max="3" value="${c.fadeOut||0}" oninput="clipSet(${i},'fadeOut',+this.value)">
       </div>
       <div class="tagrow">
         <button class="btn sm" onclick="clipRot(${i})">⟳ Rotate ${c.rot||0}°</button>
@@ -353,7 +385,7 @@ function renderClips(){
   }).join('');
   $('#clipsEmpty').style.display=CLIPS.length?'none':'block';
 }
-window.clipSet=function(i,k,v){if(!CLIPS[i])return;CLIPS[i][k]=v;updateDUR();renderClips();};
+window.clipSet=function(i,k,v){if(!CLIPS[i])return;CLIPS[i][k]=v;updateDUR();if(k==='speed')renderClips();};
 window.clipRot=function(i){const c=CLIPS[i];if(!c)return;c.rot=((c.rot||0)+90)%360;renderClips();};
 window.moveClip=function(i,d){const j=i+d;if(j<0||j>=CLIPS.length)return;const t=CLIPS[i];CLIPS[i]=CLIPS[j];CLIPS[j]=t;renderClips();};
 window.rmClip=function(i){CLIPS.splice(i,1);renderClips();updateDUR();};
@@ -365,6 +397,7 @@ function renderBase(){
   $('#baseRow').style.display=m?'flex':'none';
   $('#pipHint').style.display=m?'block':'none';
   if(m){$('#baseThumb').src=m.thumb||m.url;$('#baseName').textContent=m.name;$('#baseKind').textContent=m.type==='video'?'Video background':'Photo background';}
+  $('#baseVolRow').style.display=(m&&m.type==='video')?'grid':'none';
   syncPip();
 }
 $('#btnBaseClear').onclick=()=>{BASE=null;renderBase();};
@@ -456,6 +489,12 @@ function drawComposite(ctx,t){
   for(const tx of TEXTS){
     if(tx.always||(t>=tx.start&&t<=tx.end))drawText(ctx,tx,W,H);
   }
+  if(loc){
+    const cc=CLIPS[loc.i]; const dd=cDur(cc); let vis=1;
+    if(cc.fadeIn>0)vis=Math.min(vis,loc.off/cc.fadeIn);
+    if(cc.fadeOut>0)vis=Math.min(vis,(dd-loc.off)/cc.fadeOut);
+    if(vis<1){ctx.save();ctx.globalAlpha=Math.max(0,1-vis);ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);ctx.restore();}
+  }
 }
 function showHint(){
   $('#hint').style.display=(MEDIA.length||CLIPS.length)?'none':'flex';
@@ -532,6 +571,51 @@ $('#btnPlay').onclick=()=>{
   stage.addEventListener('pointerup',()=>drag=null);
 })();
 
+/* ================= BACKGROUND SOUND ================= */
+let BASEVOL=100;
+$('#baseVol').oninput=e=>BASEVOL=+e.target.value;
+
+/* ================= EMOJI STICKERS ================= */
+const EMOJI=['🔥','😂','😱','💯','😍','🤯','✨','🎉','👉','🙏','❤️','👀','🤣','🚀','💰','😅'];
+$('#emojiRow').innerHTML=EMOJI.map(e=>`<button class="btn sm" style="font-size:1.15rem" onclick="addEmoji('${e}')">${e}</button>`).join('');
+window.addEmoji=e=>{TEXTS.push({text:e,color:'#ffffff',size:14,x:50,y:18,always:true,start:0,end:5});renderTexts();toast('Sticker added');};
+
+/* ================= VOICEOVER ================= */
+let VOICE=null, voRec=null, voChunks=[];
+$('#btnVO').onclick=async()=>{
+  if(voRec){voRec.stop();return;}
+  try{
+    const str=await navigator.mediaDevices.getUserMedia({audio:true});
+    const r=new MediaRecorder(str); voChunks=[];
+    r.ondataavailable=e=>{if(e.data.size)voChunks.push(e.data);};
+    r.onstop=()=>{
+      str.getTracks().forEach(t=>t.stop());
+      const b=new Blob(voChunks,{type:'audio/webm'});
+      const el=new Audio(URL.createObjectURL(b)); el.preload='auto';
+      VOICE={el,name:'Recorded voiceover'};
+      $('#voName').textContent='🎙 Voiceover recorded ✓';
+      $('#btnVOClear').style.display='inline-block';
+      $('#voVolRow').style.display='grid';
+      $('#btnVO').textContent='🎙 Record';
+      toast('Voiceover saved');
+    };
+    voRec=r; r.start();
+    $('#btnVO').textContent='⏹ Stop recording';
+    toast('Recording… talk now');
+  }catch(e){toast('Microphone not available');}
+};
+$('#btnVOFile').onclick=()=>$('#voIn').click();
+$('#voIn').onchange=e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const el=new Audio(URL.createObjectURL(f)); el.preload='auto';
+  VOICE={el,name:f.name};
+  $('#voName').textContent='🎙 '+f.name;
+  $('#btnVOClear').style.display='inline-block';
+  $('#voVolRow').style.display='grid';
+  e.target.value='';
+};
+$('#btnVOClear').onclick=()=>{VOICE=null;$('#voName').textContent='No voiceover yet. Tap Record, talk, tap again to stop.';$('#btnVOClear').style.display='none';$('#voVolRow').style.display='none';};
+
 /* ================= MUSIC ================= */
 $('#btnMusic').onclick=()=>$('#musicIn').click();
 $('#musicIn').onchange=e=>{
@@ -545,7 +629,8 @@ $('#musicIn').onchange=e=>{
   e.target.value='';
 };
 $('#btnMusicClear').onclick=()=>{MUSIC=null;$('#musicName').textContent='No music added.';$('#btnMusicClear').style.display='none';$('#musicVolRow').style.display='none';};
-$('#musicVol').oninput=e=>{if(MUSIC_GAIN)MUSIC_GAIN.gain.value=e.target.value/100;};
+$('#musicVol').oninput=()=>{};
+
 
 /* ================= EXPORT ================= */
 $('#resSel').onchange=e=>{
@@ -577,22 +662,19 @@ async function doExport(){
     const dest=AC.createMediaStreamDestination();
     const master=AC.createGain();master.gain.value=1;
     master.connect(dest);master.connect(AC.destination);
-    for(const c of CLIPS){
-      const m=mById(c.mediaId);
-      if(!m||m.type!=='video')continue;
-      let node=AUDIO_NODES.get(m.el);
-      if(!node){node=AC.createMediaElementSource(m.el);AUDIO_NODES.set(m.el,node);node.connect(master);}
+    const GAINS=new Map();
+    function elGain(el,vol){
+      let src=AUDIO_NODES.get(el);
+      if(!src){src=AC.createMediaElementSource(el);AUDIO_NODES.set(el,src);}
+      let g=GAINS.get(el);
+      if(!g){g=AC.createGain();try{src.disconnect();}catch(e){}src.connect(g);g.connect(master);GAINS.set(el,g);}
+      if(vol!=null)g.gain.value=vol;
+      return g;
     }
-    if(BASE){const bm=mById(BASE);if(bm&&bm.type==='video'){
-      let node=AUDIO_NODES.get(bm.el);
-      if(!node){node=AC.createMediaElementSource(bm.el);AUDIO_NODES.set(bm.el,node);node.connect(master);}
-    }}
-    if(MUSIC&&MUSIC.el){
-      let node=AUDIO_NODES.get(MUSIC.el);
-      if(!node){node=AC.createMediaElementSource(MUSIC.el);node.connect(MUSIC_GAIN||master);AUDIO_NODES.set(MUSIC.el,node);}
-      if(!MUSIC_GAIN){MUSIC_GAIN=AC.createGain();MUSIC_GAIN.gain.value=$('#musicVol').value/100;node.disconnect();node.connect(MUSIC_GAIN);MUSIC_GAIN.connect(master);}
-      MUSIC.el.currentTime=0;
-    }
+    CLIPS.forEach(c=>{const m=mById(c.mediaId);if(m&&m.type==='video')elGain(m.el,(c.vol==null?100:c.vol)/100);});
+    if(BASE){const bm=mById(BASE);if(bm&&bm.type==='video')elGain(bm.el,BASEVOL/100);}
+    if(MUSIC&&MUSIC.el){elGain(MUSIC.el,$('#musicVol').value/100);MUSIC.el.currentTime=0;}
+    if(VOICE&&VOICE.el){elGain(VOICE.el,$('#voVol').value/100);VOICE.el.currentTime=0;}
     const at=dest.stream.getAudioTracks()[0];
     if(at)stream.addTrack(at);
     if(typeof MediaRecorder==='undefined')throw new Error('This browser cannot export video. Use Chrome.');
@@ -606,17 +688,20 @@ async function doExport(){
     const bm=BASE?mById(BASE):null;
     if(bm&&bm.type==='video'){bm.el.muted=false;bm.el.loop=true;bm.el.currentTime=0;bm.el.play().catch(()=>{});}
     if(MUSIC&&MUSIC.el){MUSIC.el.muted=false;MUSIC.el.loop=true;MUSIC.el.play().catch(()=>{});}
+    if(VOICE&&VOICE.el){VOICE.el.muted=false;VOICE.el.loop=false;VOICE.el.play().catch(()=>{});}
     const t0=performance.now();
     let stopped=false,exIdx=-1;
     const stopAll=()=>{
       CLIPS.forEach(c=>{const m=mById(c.mediaId);if(m&&m.type==='video')m.el.pause();});
       if(bm&&bm.type==='video')bm.el.pause();
       if(MUSIC&&MUSIC.el)MUSIC.el.pause();
+      if(VOICE&&VOICE.el)VOICE.el.pause();
     };
     (function frame(){
       let t=(performance.now()-t0)/1000;
       if(t>=DUR){t=DUR;stopped=true;}
       const loc=locate(t);
+      if(loc){const acm=mById(CLIPS[loc.i].mediaId);if(acm&&acm.type==='video'){const ag=GAINS.get(acm.el);if(ag)ag.gain.value=(CLIPS[loc.i].vol==null?100:CLIPS[loc.i].vol)/100;}}
       if(loc&&exIdx!==loc.i){
         if(exIdx>=0){const p=mById(CLIPS[exIdx].mediaId);if(p&&p.type==='video')p.el.pause();}
         exIdx=loc.i;
